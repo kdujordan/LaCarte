@@ -18,6 +18,7 @@ class OrderSession(models.Model):
     Matches your 'n for the number of  time and the ip address' block .
     """
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
+    session_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     ip_address = models.GenericIPAddressField()
     num_people = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     start_time =  models.DateTimeField(auto_now_add=True)
@@ -94,5 +95,42 @@ class Receipt(models.Model):
     
     def __str__(self):
         return f"Receipt {self.receipt_number} for Order {self.order.id}"
+
+class StaffNotification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('NEW_ORDER', 'New Order Received'),
+        ('ORDER_READY', 'Order Ready for Pickup/Serving'),
+        ('ORDER_SERVED', 'Order Served'),
+        ('PAYMENT_RECEIVED', 'Payment Received'),
+        ('OTHER', 'Other')
+    ]
     
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    message = models.TextField()
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.type} - {self.message}"
+
+class Feedback(models.Model):
+    FEEDBACK_TYPES = [
+        ('FOOD', 'Food Quality'),
+        ('SERVICE', 'Service Quality'),
+        ('CUSTOMER_EXPERIENCE', 'Customer Experience'),
+        ('OTHER', 'Other')
+    ]
+    
+    feedback_type = models.CharField(max_length=20, choices=FEEDBACK_TYPES)
+    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    message = models.TextField()
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, null=True, blank=True)
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.type} - {self.message}"
     
