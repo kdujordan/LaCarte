@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import MenuItemViewSet, OrderSessionViewSet, OrderViewSet, StaffNotificationViewSet, FeedbackViewSet, TableViewSet
 from rest_framework.routers import DefaultRouter
+from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, MenuPopularityView, SalesTrendView
 
 router = DefaultRouter()
 router.register(r'menu-items', MenuItemViewSet)
@@ -30,4 +31,8 @@ router.register(r'tables', TableViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/analytics/daily-sales/', DailySalesAnalyticsView.as_view(), name='daily-sales'),
+    path('api/analytics/products/', ProductsAnalyticsView.as_view(), name='products'),
+    path('api/analytics/menu-popularity/', MenuPopularityView.as_view(), name='menu-popularity'),
+    path('api/analytics/sales-trend/', SalesTrendView.as_view(), name='sales-trend'),
 ]
