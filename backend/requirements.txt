@@ -1,4 +1,10 @@
 django
 djangorestframework
+django-cors-headers
+django-storages
 pillow
 psycopg2-binary
+django-widget-tweaks
+django-filter
+djangorestframework-simplejwt
+django-environ
