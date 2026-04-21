@@ -14,6 +14,14 @@ class User(AbstractUser):
         choices=Role.choices,
         default=Role.ORDER_MANAGER,
     )
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, unique=True)
+    is_approved = models.BooleanField(default=False)
+    
+    
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
     
     def __str__(self):
         return f"{self.username} - {self.role}"

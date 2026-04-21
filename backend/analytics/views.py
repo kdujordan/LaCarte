@@ -78,3 +78,47 @@ class SalesTrendView(views.APIView):
         return Response(data)
 
 
+class StaffManagementViewSet(viewsets.ModelViewSet):
+    """
+    Dashboard for the Head of Operations to manage staff members
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsHeadOfOperations]
+
+    @action(detail=False, methods=['get'])
+    def staff_list(self, request):
+        staff = self.queryset.filter(is_approved=True)
+        serializer = UserSerializer(staff, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def pending_staff_approvals(self, request):
+        pending_staff = self.queryset.filter(is_approved=False)
+        serializer = UserSerializer(pending_staff, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'])
+    def approve_staff(self, request, pk=None):
+        user = self.get_object()
+        user.is_approved = True
+        user.save()
+        return Response({'message': 'Staff approved successfully'}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['delete'])
+    def reject_staff(self, request, pk=None):
+        user = self.get_object()
+        if user.is_approved or user.role == User.Role.HEAD_OF_OPERATIONS:
+            return Response({'message': 'Staff cannot be rejected/deleted as they are the Head of Operations'}, status=status.HTTP_400_BAD_REQUEST)
+        username = user.first_name + ' ' + user.last_name
+        user.delete()
+        return Response({'message': f'Registration for {username} has been rejected and removed from the system'}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['delete'])
+    def delete_staff(self, request, pk=None):
+        user = self.get_object()
+        if user.role == User.Role.HEAD_OF_OPERATIONS:
+            return Response({'message': 'Staff cannot be deleted as they are the Head of Operations'}, status=status.HTTP_400_BAD_REQUEST)
+        username = user.first_name + ' ' + user.last_name
+        user.delete()
+        return Response({'message': f'Registration for {username} has been deleted and removed from the system'}, status=status.HTTP_204_NO_CONTENT)

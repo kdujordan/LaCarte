@@ -19,6 +19,11 @@ from django.urls import path, include
 from core.views import MenuItemViewSet, OrderSessionViewSet, OrderViewSet, StaffNotificationViewSet, FeedbackViewSet, TableViewSet
 from rest_framework.routers import DefaultRouter
 from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, MenuPopularityView, SalesTrendView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .serializers import CustomTokenObtainPairSerializer
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 router = DefaultRouter()
 router.register(r'menu-items', MenuItemViewSet)
@@ -28,6 +33,10 @@ router.register(r'staff-notifications', StaffNotificationViewSet)
 router.register(r'feedback', FeedbackViewSet)
 router.register(r'tables', TableViewSet)
 
+analytics_router = DefaultRouter()  
+analytics_router.register(r'staff', StaffManagementViewSet, basename='staff-managment')
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
@@ -35,4 +44,7 @@ urlpatterns = [
     path('api/analytics/products/', ProductsAnalyticsView.as_view(), name='products'),
     path('api/analytics/menu-popularity/', MenuPopularityView.as_view(), name='menu-popularity'),
     path('api/analytics/sales-trend/', SalesTrendView.as_view(), name='sales-trend'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/analytics/', include(analytics_router.urls)),
 ]
