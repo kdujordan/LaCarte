@@ -4,7 +4,8 @@ from rest_framework.decorators import action
 from rest_framework import viewsets, status
 from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback
 from .serializers import TableSerializer, OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 # Create your views here.
 
 class MenuItemViewSet(viewsets.ModelViewSet):
@@ -58,3 +59,27 @@ class StaffNotificationViewSet(viewsets.ModelViewSet):
         notifications.update(is_read=True)
         return Response({'message': 'All notifications marked as read'}, status=status.HTTP_200_OK)
     
+def post_order(request):
+    
+    #1 Grab the channel layer
+
+    channel_layer = get_channel_layer()
+
+    #2 prepare data for the kitchen 
+
+    kitchen_data = {
+        "order_id" : order.id,
+        "table_number" : order.session_id.table.table_number,
+        "items_count": order.items.count(),
+        "status": order.status,
+    }
+
+    #3 Send the Message
+    async_to_sync(channel_layer.group_send)(
+        "kitchen_updates", {
+            "type" : "order_received",
+            "message" : kitchen_data
+        }
+    )
+
+    return Response({"message": "Order successfully sent to kitchen!"})

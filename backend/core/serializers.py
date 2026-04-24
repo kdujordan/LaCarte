@@ -3,9 +3,19 @@ from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
     class Meta:
         model = MenuItem
-        fields = ['id', 'name', 'price', 'description', 'category', 'image', 'is_available']
+        fields = ['id', 'name', 'price', 'description', 'category', 'image_url', 'is_available']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            else:
+                return obj.image.url
+        return None
 
 class OrderItemSerializer(serializers.ModelSerializer):
     

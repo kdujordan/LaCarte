@@ -74,6 +74,11 @@ class OrderItem(models.Model):
     def get_subtotal(self):
         return self.quantity * self.price_at_order
 
+    def save(self, *args, **kwargs):
+        if not self.price_at_order:
+            self.price_at_order = self.menu_item.price
+        super().save(*args, **kwargs)
+
 class Receipt(models.Model):
     """ 
     Generated during ' System Ore Operations' (System OPS)

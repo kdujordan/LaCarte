@@ -22,6 +22,9 @@ from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, Menu
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import CustomTokenObtainPairSerializer
 from .permissions import IsHeadOfOperations, IsOrderManager, UserSerializer
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -53,3 +56,8 @@ urlpatterns = [
     path("api/password/reset/", views.PasswordResetRequestView.as_view(), name="request-password-reset"),
     path("api/password/confirm/<uidb64>/<token>", views.PasswordResetConfirmView.as_view(), name="confirm-password-reset"),
 ]
+
+
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
