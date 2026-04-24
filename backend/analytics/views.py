@@ -4,9 +4,13 @@ from rest_framework import status
 from django.db.models import Sum, Count, F
 from django.utils import timezone
 from datetime import timedelta
-from .models import DailySalesAnalytics, ProductsAnalytics, MenuPopularity
+from .models import DailySalesAnalytics, ProductsAnalytics, MenuPopularity, User
 from .serializers import DailySalesAnalyticsSerializer, ProductsAnalyticsSerializer, MenuPopularitySerializer
-
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+from django.conf import settings
 
 class DailySalesAnalyticsView(APIView):
     permission_classes = [IsOrderManager]
@@ -122,3 +126,50 @@ class StaffManagementViewSet(viewsets.ModelViewSet):
         username = user.first_name + ' ' + user.last_name
         user.delete()
         return Response({'message': f'Registration for {username} has been deleted and removed from the system'}, status=status.HTTP_204_NO_CONTENT)
+
+class PasswordResetRequestView(views.APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email')
+        user = User.objects.filter(email=email).first()
+        
+        if user:
+            #Create a password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            
+            #Send an email to the user with the reset link
+            reset_url = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
+            
+            send_mail(
+                "Password Reset Request",
+                f"Please click the link below to reset your password:\n\n{reset_url}",
+                [user.email],
+            )
+            return Response({'message': 'Password reset link sent successfully'}, status=status.HTTP_200_OK)
+        return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class PasswordResetConfirmView(views.APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+        
+        #Decode the user id
+        try:
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+        except (User.DoesNotExist, ValueError):
+            return Response({'message': 'Invalid user ID'}, status=status.HTTP_404_NOT_FOUND)
+        
+        #Check if the token is valid
+        if not default_token_generator.check_token(user, token):
+            return Response({'message': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #Reset the password
+        user.set_password(new_password)
+        user.save()
+        
+        return Response({'message': 'Password reset successful'}, status=status.HTTP_200_OK)

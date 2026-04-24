@@ -18,9 +18,10 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import MenuItemViewSet, OrderSessionViewSet, OrderViewSet, StaffNotificationViewSet, FeedbackViewSet, TableViewSet
 from rest_framework.routers import DefaultRouter
-from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, MenuPopularityView, SalesTrendView
+from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, MenuPopularityView, SalesTrendView, PasswordResetRequestView, PasswordResetConfirmView, StaffManagementViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import CustomTokenObtainPairSerializer
+from .permissions import IsHeadOfOperations, IsOrderManager, UserSerializer
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -47,4 +48,8 @@ urlpatterns = [
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/analytics/', include(analytics_router.urls)),
+    # path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+
+    path("api/password/reset/", views.PasswordResetRequestView.as_view(), name="request-password-reset"),
+    path("api/password/confirm/<uidb64>/<token>", views.PasswordResetConfirmView.as_view(), name="confirm-password-reset"),
 ]

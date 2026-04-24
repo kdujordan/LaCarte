@@ -4,7 +4,9 @@ from django.dispatch import receiver
 from django.utils import timezone
 from core.models import Order
 from .models import DailySalesAnalytics, ProductsAnalytics, MenuPopularity
-
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django_rest_passwordreset.signals import reset_password_token_created
 
 
 @receiver(post_save, sender=Order)
@@ -52,7 +54,20 @@ def update_menu_popularity(sender, instance, **kwargs):
             )
             popularity_stat.sales_count = F('sales_count') + item.quantity
             popularity_stat.save()
+
+
+# @receiver(reset_password_token_created)
+# def password_reset_token_created(sender, request, reset_password_token, *args, **kwargs):
+    
+#     #This is to link to the frontend reset password page
+    
+#     email_plaintext_message = "{}?token={}".format(settings.FRONTEND_URLS, reset_password_token.key)
                 
-        
-        
+#     email = EmailMessage(
+#         subject= "Password Reset",
+#         body= email_plaintext_message,
+#         from_email=settings.EMAIL_HOST_USER,
+#         to=[reset_password_token.user.email],
+#     )
+#     email.send()
         

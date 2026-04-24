@@ -4,6 +4,17 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def get_token(self, user):
+        token = super().get_token(user)
+
+        # Add custom claims to the token
+        token['role'] = user.role
+        token['is_approved'] = user.is_approved
+        token['email'] = user.email
+
+        
+        return token
+    
     def validate(self, attrs):
         #This checks the username and password first
         data = super().validate(attrs)
@@ -37,3 +48,22 @@ class MenuPopularitySerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuPopularity
         fields = '__all__'
+
+class UserSignupSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['email','first_name','last_name','password','role']
+        write_only_fields = ['password']
+        
+    def create(self, validated_data):
+        #Create user but keep them unapproved
+        user = User.objects.create_user(**validated_data)
+        return user
+
+    def validate_role(self, value):
+        if value == User.Role.HEAD_OF_OPERATIONS:
+            raise serializers.ValidationError("Head of Operations cannot be created by users")
+        return value
+        

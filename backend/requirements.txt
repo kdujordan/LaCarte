@@ -8,3 +8,7 @@ django-widget-tweaks
 django-filter
 djangorestframework-simplejwt
 django-environ
+channels
+channels_redis
+daphne
+django-rest-passwordreset
