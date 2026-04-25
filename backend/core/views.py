@@ -1,19 +1,79 @@
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import viewsets, status
 from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback
-from .serializers import TableSerializer, OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer
+from .serializers import OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer, OrderUpdateStatusSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from rest_framework.permissions import BasePermission
 from rest_framework.views import APIView
-from rest_framework.exceptions import NotFound
 from .authentication import GuestSessionAuthentication
 import jwt
 import datetime
+from django.conf import settings
+
 
 # Create your views here.
+class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderUpdateStatusSerializer
+
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        """
+        Custom action for the ' Update Status' button in System Operations
+        """
+        order = self.get_object()
+        new_status = request.data.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            return Response({'message': f'Order {order.id} status updated to {new_status}'}, status=status.HTTP_200_OK)
+        return Response({'error': 'Invalid status value'}, status=status.HTTP_400_BAD_REQUEST)
+
+class FeedbackViewSet(viewsets.ModelViewSet):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_feedback(self, request):
+        """
+        Custom action for the 'Get Feedback' button in System Operations
+        """
+        feedback = self.get_queryset()
+        return Response(FeedbackSerializer(feedback, many=True).data)
+    def create_feedback(self, request):
+        """
+        Custom action for the 'Create Feedback' button in System Operations
+        """
+        feedback = self.create(request.data)
+        return Response(FeedbackSerializer(feedback).data)
+
+class ReceiptViewSet(viewsets.ModelViewSet):
+    queryset = Receipt.objects.all()
+    serializer_class = ReceiptSerializer
+
+    @action(detail=True, methods=['get'])
+    def get_receipt(self, request, pk=None):
+        """
+        Custom action for the 'Get Receipt' button in System Operations
+        """
+        receipt = self.get_object()
+        return Response(ReceiptSerializer(receipt).data)
+
+    @action(detail=False, methods=['post'])
+    def create_receipt(self, request):
+        """
+        Custom action for the 'Create Receipt' button in System Operations
+        """
+        receipt = self.create(request.data)
+        return Response(ReceiptSerializer(receipt).data)
+
+class OrderItemViewSet(viewsets.ModelViewSet):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
+
+
 
 class MenuItemViewSet(viewsets.ModelViewSet):
     """
@@ -127,7 +187,7 @@ class PlaceOrderView(APIView):
         """
         active_session = request.auth
 
-        new_order = Order.objects.create(
+        order = Order.objects.create(
             session_id=active_session,
             order_type=request.data.get("order_type", "order_for_self"),
             order = {
@@ -145,10 +205,10 @@ class PlaceOrderView(APIView):
         #2 prepare data for the kitchen 
 
         kitchen_data = {
-            "order_id" : new_order.id,
-            "table_number" : new_order.session_id.table.table_number,
-            "items_count": new_order.items.count(),
-            "status": new_order.status,
+            "order_id" : order.id,
+            "table_number" : order.session_id.table.table_number,
+            "items_count": order.items.count(),
+            "status": order.status,
         }
 
         #3 Send the Message
@@ -160,6 +220,7 @@ class PlaceOrderView(APIView):
         )
 
         return Response({"message": "Order successfully sent to kitchen!"})
+
 
 
         
