@@ -173,3 +173,4 @@ class PasswordResetConfirmView(views.APIView):
         user.save()
         
         return Response({'message': 'Password reset successful'}, status=status.HTTP_200_OK)
+

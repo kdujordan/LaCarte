@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt
+from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -41,7 +41,8 @@ class OrderSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
         for item_data in items_data:
-            OrderItem.objects.create(order=order, **item_data)
+            menu_item = items_data['menu_item']
+            OrderItem.objects.create(order=order, menu_item=menu_item, quantity=item_data['quantity'], special_requests=item_data['special_requests'])
         return order
     
 class OrderUpdateStatusSerializer(serializers.ModelSerializer):
@@ -97,6 +98,11 @@ class ReceiptSerializer(serializers.ModelSerializer):
         
         return receipt
 
+class TableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ['id', 'table_number', 'qr_code_id', 'is_active']
+
 class FeedbackSerializer(serializers.ModelSerializer):
     order_details = OrderSerializer(read_only=True, source='order')
     table_details = TableSerializer(read_only=True, source='table')
@@ -125,7 +131,7 @@ class StaffNotificationSerializer(serializers.ModelSerializer):
         notification = StaffNotification.objects.create(**validated_data)
         return notification
 
-class TableSerializer(serializers.ModelSerializer):
+class OrderSessionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Table
-        fields = ['id', 'table_number', 'qr_code_id', 'is_active']
+        model = OrderSession
+        fields = ['id', 'table', 'is_active', 'created_at']

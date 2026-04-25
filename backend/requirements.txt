@@ -12,3 +12,4 @@ channels
 channels_redis
 daphne
 django-rest-passwordreset
+PyJWT

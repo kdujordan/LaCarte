@@ -6,6 +6,13 @@ from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, St
 from .serializers import TableSerializer, OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from rest_framework.permissions import BasePermission
+from rest_framework.views import APIView
+from rest_framework.exceptions import NotFound
+from .authentication import GuestSessionAuthentication
+import jwt
+import datetime
+
 # Create your views here.
 
 class MenuItemViewSet(viewsets.ModelViewSet):
@@ -59,27 +66,101 @@ class StaffNotificationViewSet(viewsets.ModelViewSet):
         notifications.update(is_read=True)
         return Response({'message': 'All notifications marked as read'}, status=status.HTTP_200_OK)
     
-def post_order(request):
-    
-    #1 Grab the channel layer
 
-    channel_layer = get_channel_layer()
 
-    #2 prepare data for the kitchen 
+class ScanTableQRView(APIView):
+    permission_classes = []
+    def post(self, request):
+        qr_code_id = request.data.get('qr_code_id')
+        ip_address = request.META.get('REMOTE_ADDR', '0.0.0.0')
 
-    kitchen_data = {
-        "order_id" : order.id,
-        "table_number" : order.session_id.table.table_number,
-        "items_count": order.items.count(),
-        "status": order.status,
-    }
+        # 1. Verify QR Code
+        try:
+            table = Table.objects.get(qr_code_id=qr_code_id , is_active=True)
+        except Table.DoesNotExist:
+            return Response(
+                {"error": "Invalid QR Code"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-    #3 Send the Message
-    async_to_sync(channel_layer.group_send)(
-        "kitchen_updates", {
-            "type" : "order_received",
-            "message" : kitchen_data
+        # 2. Start a Session
+        # This is the "Start" of the workflow
+        session = OrderSession.objects.create(
+            table=table,
+            is_active=True,
+            defaults={
+                "ip_address": ip_address
+            }   
+        )
+
+        payload = {
+            "session_id": str(session.session_id),
+            #token to expire in 3hour
+
+            'exp': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=3),
+            'iat': datetime.datetime.now(datetime.timezone.utc)
+            
         }
-    )
 
-    return Response({"message": "Order successfully sent to kitchen!"})
+        #generate token using Django's secret key
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+        return Response({
+            "message": "Welcome to La Carte!",
+            "session_id": session.session_id, 
+            "table_number": table.table_number,
+            "access_token": token
+        })
+
+class IsActiveGuestSession(BasePermission):
+    
+    def has_permission(self, request, view):
+        # request.auth is the session object returned by the authentication class
+        return request.auth and isinstance(request.auth, OrderSession)
+
+class PlaceOrderView(APIView):
+    authentication_classes = [GuestSessionAuthentication]
+    permission_classes = [IsActiveGuestSession]
+
+    def post(self, request):
+        """
+        """
+        active_session = request.auth
+
+        new_order = Order.objects.create(
+            session_id=active_session,
+            order_type=request.data.get("order_type", "order_for_self"),
+            order = {
+                'items' : request.data.get('items'),
+                'total_price' : request.data.get('total_price'),
+                'quantity' : request.data.get('quantity'),
+                'special_requests' : request.data.get('special_requests')
+            }
+            
+        )
+
+
+        channel_layer = get_channel_layer()
+
+        #2 prepare data for the kitchen 
+
+        kitchen_data = {
+            "order_id" : new_order.id,
+            "table_number" : new_order.session_id.table.table_number,
+            "items_count": new_order.items.count(),
+            "status": new_order.status,
+        }
+
+        #3 Send the Message
+        async_to_sync(channel_layer.group_send)(
+            "kitchen_updates", {
+                "type" : "order_received",
+                "message" : kitchen_data
+            }
+        )
+
+        return Response({"message": "Order successfully sent to kitchen!"})
+
+
+        
+    

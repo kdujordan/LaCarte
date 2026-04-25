@@ -67,6 +67,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+    special_requests = models.TextField(blank=True, null=True)
     
     #We store price at time of order in case menu pices change later
     price_at_order = models.DecimalField(max_digits=10, decimal_places=2)

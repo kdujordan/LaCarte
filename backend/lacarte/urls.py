@@ -16,12 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from core.views import MenuItemViewSet, OrderSessionViewSet, OrderViewSet, StaffNotificationViewSet, FeedbackViewSet, TableViewSet
+from core.views import MenuItemViewSet, OrderSessionViewSet, OrderViewSet, StaffNotificationViewSet, FeedbackViewSet, TableViewSet, ScanTableQRView, OrderUpdateStatusViewSet
 from rest_framework.routers import DefaultRouter
 from analytics.views import DailySalesAnalyticsView, ProductsAnalyticsView, MenuPopularityView, SalesTrendView, PasswordResetRequestView, PasswordResetConfirmView, StaffManagementViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import CustomTokenObtainPairSerializer
-from .permissions import IsHeadOfOperations, IsOrderManager, UserSerializer
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -36,6 +35,7 @@ router.register(r'orders', OrderViewSet)
 router.register(r'staff-notifications', StaffNotificationViewSet)
 router.register(r'feedback', FeedbackViewSet)
 router.register(r'tables', TableViewSet)
+router.register(r'order-update-status', OrderUpdateStatusViewSet)
 
 analytics_router = DefaultRouter()  
 analytics_router.register(r'staff', StaffManagementViewSet, basename='staff-managment')
@@ -53,8 +53,9 @@ urlpatterns = [
     path('api/analytics/', include(analytics_router.urls)),
     # path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 
-    path("api/password/reset/", views.PasswordResetRequestView.as_view(), name="request-password-reset"),
-    path("api/password/confirm/<uidb64>/<token>", views.PasswordResetConfirmView.as_view(), name="confirm-password-reset"),
+    path("api/password/reset/", PasswordResetRequestView.as_view(), name="request-password-reset"),
+    path("api/password/confirm/<uidb64>/<token>", PasswordResetConfirmView.as_view(), name="confirm-password-reset"),
+    path('api/scan-table/', ScanTableQRView.as_view(), name='scan-table'),
 ]
 
 
