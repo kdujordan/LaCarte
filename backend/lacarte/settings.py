@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     "core",
     "analytics",
     "corsheaders",
-    "django_rest_passwordresetdjango-filter",
+    "django_rest_passwordreset",
+    # "django-filter",
 ]
 
 MIDDLEWARE = [
@@ -169,7 +170,7 @@ SIMPLE_JWT = {
 }
 
 DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
-    "CLASS": "django_rest_passwordreset.tokens.RandomTokenGenerator",
+    "CLASS": "django_rest_passwordreset.tokens.RandomStringTokenGenerator",
     "OPTIONS": {
         "min_length": 20,
         "max_length": 30,

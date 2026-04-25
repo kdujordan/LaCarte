@@ -23,12 +23,11 @@ from core.views import (
     OrderViewSet,
     StaffNotificationViewSet,
     FeedbackViewSet,
-    TableViewSet,
     ScanTableQRView,
     OrderUpdateStatusViewSet,
     ReceiptViewSet,
     OrderItemViewSet,
-    CategoryViewSet,
+    CategorizedMenuViewSet,
 )
 from rest_framework.routers import DefaultRouter
 from analytics.views import (
@@ -41,7 +40,7 @@ from analytics.views import (
     StaffManagementViewSet,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .serializers import CustomTokenObtainPairSerializer
+from analytics.serializers import CustomTokenObtainPairSerializer
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -56,11 +55,12 @@ router.register(r"order-sessions", OrderSessionViewSet)
 router.register(r"orders", OrderViewSet)
 router.register(r"staff-notifications", StaffNotificationViewSet)
 router.register(r"feedback", FeedbackViewSet)
-router.register(r"tables", TableViewSet)
-router.register(r"order-update-status", OrderUpdateStatusViewSet)
+router.register(
+    r"order-update-status", OrderUpdateStatusViewSet, basename="order-update-status"
+)
 router.register(r"receipts", ReceiptViewSet)
 router.register(r"order-items", OrderItemViewSet)
-router.register(r"categories", CategoryViewSet)
+router.register(r"category-menu", CategorizedMenuViewSet, basename="category-menu")
 
 analytics_router = DefaultRouter()
 analytics_router.register(r"staff", StaffManagementViewSet, basename="staff-managment")
