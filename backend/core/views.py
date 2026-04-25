@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import viewsets, status
 from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback
-from .serializers import OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer, OrderUpdateStatusSerializer
+from .serializers import OrderSessionSerializer, MenuItemSerializer, OrderSerializer, OrderItemSerializer, ReceiptSerializer, StaffNotificationSerializer, FeedbackSerializer, OrderUpdateStatusSerializer, MenuItemListSerializer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from rest_framework.permissions import BasePermission
@@ -11,7 +11,9 @@ from .authentication import GuestSessionAuthentication
 import jwt
 import datetime
 from django.conf import settings
-
+from .models import Category
+from .serializers import CategorySerializer
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
@@ -73,6 +75,13 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
 
+    @action(detail=False, methods=['get'])
+    def get_order_items(self, request):
+        """
+        Custom action for the 'Get Order Items' button in Order Page
+        """
+        order_items = self.get_queryset()
+        return Response(OrderItemSerializer(order_items, many=True).data)
 
 
 class MenuItemViewSet(viewsets.ModelViewSet):
@@ -81,6 +90,41 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     """
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+
+    @action(detail=False, methods=['get'])
+    def get_menu_items(self, request):
+        """
+        Custom action for the 'Get Menu Items' button in Menu Page
+        """
+        menu_items = self.get_queryset()
+        return Response(MenuItemSerializer(menu_items, many=True).data)
+    
+    @action(detail=False, methods=['post'])
+    def create_menu_item(self, request):
+        """
+        Custom action for the 'Create Menu Item' button in Dashboard
+        """
+        menu_item = self.create(request.data)
+        return Response(MenuItemSerializer(menu_item).data)
+
+    @action(detail=True, methods=['put'])
+    def update_menu_item(self, request, pk=None):
+        """
+        Custom action for the 'Update Menu Item' button in Dashboard
+        """
+        menu_item = self.get_object()
+        menu_item = self.update(request, pk)
+        return Response(MenuItemSerializer(menu_item).data)
+    
+    @action(detail=True, methods=['delete'])
+    def delete_menu_item(self, request, pk=None):
+        """
+        Custom action for the 'Delete Menu Item' button in Dashboard
+        """
+        menu_item = self.get_object()
+        menu_item.delete()
+        return Response({'message': f'Menu Item {menu_item.id} deleted successfully'})
+
     
 class OrderSessionViewSet(viewsets.ModelViewSet):
     """
@@ -222,6 +266,15 @@ class PlaceOrderView(APIView):
         return Response({"message": "Order successfully sent to kitchen!"})
 
 
+class CategorizedMenuViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = MenuItem.objects.all().order_by('name')
+    serializer_class = MenuItemListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['category']
 
-        
-    
+    @action(detail=False, methods=['get'])
+    def categories(self, request):
+        categories = Category.objects.filter(is_active=True).order_by('display_order')
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+      

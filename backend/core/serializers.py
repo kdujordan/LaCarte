@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback
+from .models import Table, OrderSession, MenuItem, Order, OrderItem, Receipt, StaffNotification, Feedback, Category
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
@@ -7,6 +7,23 @@ class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = MenuItem
         fields = ['id', 'name', 'price', 'description', 'category', 'image_url', 'is_available']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            else:
+                return obj.image.url
+        return None
+
+class MenuItemListSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    is_popular = serializers.BooleanField(default=False)
+    category_name = serializers.ReadOnlyField(source='category.name')
+    class Meta:
+        model = MenuItem
+        fields = ['id', 'name', 'price', 'description', 'category', 'image_url', 'is_available', 'is_popular', 'category_name']
 
     def get_image_url(self, obj):
         if obj.image:
@@ -135,3 +152,8 @@ class OrderSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderSession
         fields = ['id', 'table', 'is_active', 'created_at']
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'display_order', 'icon_name', 'is_active']

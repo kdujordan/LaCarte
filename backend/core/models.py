@@ -27,11 +27,27 @@ class OrderSession(models.Model):
     def __str__(self):
         return f"Order Session {self.id} for Table {self.table.table_number}"
 
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    display_order = models.PositiveIntegerField(default=0)
+    icon_name = models.CharField(max_length=50, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+        ordering = ['display_order', 'name']
+    
+
 class MenuItem(models.Model):
     name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
-    category = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='items')
     image = models.ImageField(upload_to='menu_images/', blank=True, null=True)
     is_available = models.BooleanField(default=True)
 
