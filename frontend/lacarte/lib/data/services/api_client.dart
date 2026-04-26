@@ -3,11 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiClient {
-  static String? baseUrl = dotenv.get('BASE_URL');
+  static String baseUrl = dotenv.get('BASE_URL');
   final Dio dio;
   final FlutterSecureStorage storage = const FlutterSecureStorage();
 
-  ApiClient() : dio = Dio(BaseOptions(baseUrl: baseUrl ?? '')) {
+  ApiClient() : dio = Dio(BaseOptions(baseUrl: baseUrl)) {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
