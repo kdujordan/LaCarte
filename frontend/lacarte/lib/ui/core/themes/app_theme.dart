@@ -12,9 +12,9 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: const ColorScheme(
         brightness: Brightness.light,
-        primary: forestGreen,
+        primary: mossGreen,
         onPrimary: Colors.white,
-        secondary: mossGreen,
+        secondary: forestGreen,
         onSecondary: Colors.white,
         tertiary: teaGreen,
         onTertiary: forestGreen,
@@ -24,7 +24,7 @@ class AppTheme {
         onSurface: Colors.white,
       ),
 
-      textTheme: GoogleFonts.latoTextTheme(
+      textTheme: GoogleFonts.cabinTextTheme(
         ThemeData.light().textTheme.copyWith(
           displayLarge: const TextStyle(
             color: forestGreen,

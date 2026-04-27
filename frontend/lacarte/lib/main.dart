@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lacarte/ui/core/themes/app_theme.dart';
+// import 'package:lacarte/ui/core/ui/home_page.dart';
+import 'package:lacarte/ui/core/ui/station.dart';
 
 void main() {
   runApp(const MainApp());
@@ -13,10 +15,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Text('Hello World!')),
-      ),
+      home: Station(),
     );
   }
 }
