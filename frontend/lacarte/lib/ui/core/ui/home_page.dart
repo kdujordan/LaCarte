@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lacarte/ui/core/ui/categories_section.dart';
+import 'package:lacarte/ui/lacarte_ft/widgets/category_chip.dart';
 // import 'package:google_nav_bar/google_nav_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,6 +12,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<Map<String, dynamic>> categories = [
+    {"name": "All", "icon": null},
+    {
+      "name": "Pizza",
+      "icon":
+          "https://images.pexels.com/photos/35017345/pexels-photo-35017345.jpeg",
+    },
+    {
+      "name": "Pasta",
+      "icon":
+          "https://images.pexels.com/photos/29653125/pexels-photo-29653125.jpeg",
+    },
+    {
+      "name": "Noodles",
+      "icon":
+          "https://images.pexels.com/photos/4223946/pexels-photo-4223946.jpeg",
+    },
+    {
+      "name": "Burgers",
+      "icon":
+          "https://images.pexels.com/photos/5554607/pexels-photo-5554607.jpeg",
+    },
+  ];
+
+  int _selectedCategoryIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     // final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -20,75 +48,16 @@ class _HomePageState extends State<HomePage> {
           SliverAppBar(
             pinned: true,
             stretch: true,
+            floating: true,
             stretchTriggerOffset: 300.0,
             expandedHeight: 250,
-            elevation: 1.0,
+            elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
             ),
             leading: IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
             title: Text("Berries", style: GoogleFonts.boldonse()),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(150.0),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 20, right: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // const FlutterLogo(size: 40),
-                    Text(
-                      "Eat Healthy",
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        fontWeight: FontWeight.w200,
-                      ),
-                      textAlign: TextAlign.start,
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      "Live Healthy",
-                      style: TextStyle(fontSize: 30.0, color: Colors.white),
-                      textAlign: TextAlign.start,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Container(
-                    //   height: 45,
-                    //   decoration: BoxDecoration(
-                    //     color: Theme.of(context).colorScheme.tertiary,
-                    //     border: Border.all(),
-                    //     borderRadius: BorderRadius.circular(25),
-                    //   ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: TextField(
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSecondary,
-                        ),
-                        cursorColor: Colors.white70,
-                        decoration: InputDecoration(
-                          // fillColor: Theme.of(context).colorScheme.primary,
-                          hintText: "Search...",
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.all(Radius.circular(25)),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(vertical: 10),
-                        ),
-                      ),
-                    ),
-                    // ),
-                  ],
-                ),
-              ),
-            ),
+            // bottom: ,
             flexibleSpace: FlexibleSpaceBar(
               // title: Text(
               //   "La~Carte",
@@ -97,33 +66,175 @@ class _HomePageState extends State<HomePage> {
               //     fontWeight: FontWeight.w500,
               //   ),
               // ),
-              background: ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Image.network(
-                      "https://images.pexels.com/photos/31300955/pexels-photo-31300955.jpeg",
-                      fit: BoxFit.cover,
+              background: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(30),
                     ),
-
-                    const DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Color(0xFF485935)],
-                          stops: [0.1, 1.0],
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.network(
+                          "https://images.pexels.com/photos/31300955/pexels-photo-31300955.jpeg",
+                          fit: BoxFit.cover,
                         ),
+
+                        const DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Color(0xFF485935)],
+                              stops: [0.1, 1.0],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Positioned(
+                    bottom: 0, // Pins the widget to the bottom
+                    left: 0, // Pins to the left edge
+                    right: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20, right: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // const FlutterLogo(size: 40),
+                          Text(
+                            "Eat Healthy",
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontWeight: FontWeight.w200,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
+
+                          const SizedBox(height: 5),
+
+                          Text(
+                            "Live Healthy",
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Container(
+                          //   height: 45,
+                          //   decoration: BoxDecoration(
+                          //     color: Theme.of(context).colorScheme.tertiary,
+                          //     border: Border.all(),
+                          //     borderRadius: BorderRadius.circular(25),
+                          //   ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: TextField(
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSecondary,
+                              ),
+                              cursorColor: Colors.white70,
+                              decoration: InputDecoration(
+                                // fillColor: Theme.of(context).colorScheme.primary,
+                                hintText: "Search...",
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(25),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(25),
+                                  ),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
+
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Categories',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) => const CategoriesSection(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'See all',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCategoryIndex = index;
+                          });
+                        },
+                        child: CategoryChip(
+                          label: categories[index]["name"],
+                          isSelected: _selectedCategoryIndex == index,
+                          iconPath: categories[index]["icon"],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SliverFillRemaining(),
         ],
       ),
     );
