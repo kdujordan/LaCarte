@@ -11,16 +11,29 @@ class MyBottomNavBar extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
+      // margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: colorScheme.tertiary,
+        borderRadius: BorderRadius.circular(50),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.primary.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       // decoration: BoxDecoration(color: colorScheme.primary),
       child: GNav(
         color: colorScheme.secondary,
-        tabBorder: Border.all(color: colorScheme.tertiary),
+        tabBorder: Border.all(color: colorScheme.primary),
         activeColor: colorScheme.secondary,
-        tabActiveBorder: Border.all(color: colorScheme.primary),
-        tabBackgroundColor: colorScheme.tertiary,
+        tabActiveBorder: Border.all(color: colorScheme.secondary),
+        tabBackgroundColor: colorScheme.surface,
         gap: 5,
-        mainAxisAlignment: MainAxisAlignment.center,
-        // padding: EdgeInsetsGeometry.only(bottom: 15.0),
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        padding: EdgeInsetsGeometry.symmetric(vertical: 12.0, horizontal: 20.0),
         tabs: const [
           GButton(icon: Icons.restaurant_menu, text: 'menu'),
           GButton(icon: Icons.lunch_dining, text: 'Orders'),

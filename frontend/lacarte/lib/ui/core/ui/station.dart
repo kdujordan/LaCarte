@@ -25,10 +25,20 @@ class _StationState extends State<Station> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 15.0),
-        child: MyBottomNavBar(onTabChange: (index) => onTabChange(index)),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 20.0,
+              right: 20.0,
+              bottom: 20.0,
+            ),
+            child: MyBottomNavBar(onTabChange: (index) => onTabChange(index)),
+          ),
+        ),
       ),
     );
   }

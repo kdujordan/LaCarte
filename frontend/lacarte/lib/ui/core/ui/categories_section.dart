@@ -268,6 +268,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                           enableInfiniteScroll: false,
                           padEnds: true,
                           enlargeCenterPage: true,
+                          enlargeFactor: 0.2,
                           // disableCenter: true,
                         ),
                       )
