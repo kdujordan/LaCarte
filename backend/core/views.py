@@ -231,7 +231,7 @@ class ScanTableQRView(APIView):
         # 2. Start a Session
         # This is the "Start" of the workflow
         session = OrderSession.objects.create(
-            table=table, is_active=True, defaults={"ip_address": ip_address}
+            table=table, is_active=True, ip_address=ip_address
         )
 
         payload = {

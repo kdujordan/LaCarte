@@ -7,7 +7,7 @@ import uuid
 
 class Table(models.Model):
     table_number = models.CharField(max_length=10, unique=True)
-    qr_code_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    qr_code_id = models.CharField(max_length=100, unique=True, editable=True)
     is_active = models.BooleanField(default=True)
     
     def __str__(self):
