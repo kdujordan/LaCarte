@@ -286,11 +286,11 @@ class _HomePageState extends State<HomePage> {
                                   _selectedCategoryIndex = index;
                                 });
 
-                                // _itemScrollController.scrollTo(
-                                //   index: index,
-                                //   duration: Duration(milliseconds: 500),
-                                //   curve: Curves.easeInOut,
-                                // );
+                                _itemScrollController.scrollTo(
+                                  index: index,
+                                  duration: Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                );
                               },
                               child: CategoryChip(
                                 label:
@@ -356,8 +356,10 @@ class _HomePageState extends State<HomePage> {
                                 height: 420.0,
                                 viewportFraction: 0.75,
                                 enableInfiniteScroll: false,
-                                padEnds: false,
-                                disableCenter: true,
+                                padEnds: true,
+                                enlargeCenterPage: true,
+                                enlargeFactor: 0.2,
+                                // disableCenter: true,
                               ),
                             )
                           else
