@@ -6,6 +6,7 @@ class MenuViewModel extends ChangeNotifier {
 
   List<dynamic> categories = [];
   List<dynamic> menuItems = [];
+  List<dynamic> allMenuItems = [];
   bool isLoading = false;
 
   Future<void> loadMenuInit() async {
@@ -14,6 +15,12 @@ class MenuViewModel extends ChangeNotifier {
 
     try {
       categories = await _menuService.getCategories();
+
+      if (!categories.any((c) => c['name'] == 'All')) {
+        categories.insert(0, {'id': null, 'name': 'All', 'icon_name': null});
+      }
+
+      allMenuItems = await _menuService.getMenuItems();
 
       if (categories.isNotEmpty) {
         await loadItemsForCategory(categories[0]['id']);

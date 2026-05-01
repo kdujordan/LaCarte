@@ -24,7 +24,7 @@ from .serializers import (
 )
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, AllowAny
 from rest_framework.views import APIView
 from .authentication import GuestSessionAuthentication
 import jwt
@@ -214,6 +214,7 @@ class StaffNotificationViewSet(viewsets.ModelViewSet):
 
 
 class ScanTableQRView(APIView):
+    authentication_classes = []
     permission_classes = []
 
     def post(self, request):
@@ -304,6 +305,8 @@ class CategorizedMenuViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MenuItemListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category"]
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=["get"])
     def categories(self, request):

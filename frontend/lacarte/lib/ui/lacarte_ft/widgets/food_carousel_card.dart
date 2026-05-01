@@ -13,7 +13,9 @@ class FoodCarouselCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(35),
         image: DecorationImage(
-          image: NetworkImage(item['image']),
+          image: NetworkImage(
+            item['image_url'] ?? 'https://via.placeholder.com/280',
+          ),
           fit: BoxFit.cover,
         ),
       ),
@@ -70,7 +72,7 @@ class FoodCarouselCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        item['name'],
+                        item['name'] ?? 'Unknown Item',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -90,7 +92,7 @@ class FoodCarouselCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Text(
-                        "UGX ${item['price'].toInt()}", // Adapted for your local currency
+                        "UGX ${_parsePrice(item['price']).toInt()}", // Adapted for your local currency
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -103,7 +105,7 @@ class FoodCarouselCard extends StatelessWidget {
 
                 // Description
                 Text(
-                  item['description'],
+                  item['description'] ?? 'No description available',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.8),
                     fontSize: 13,
@@ -152,6 +154,25 @@ class FoodCarouselCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Helper method to safely parse price from various types
+  double _parsePrice(dynamic price) {
+    if (price == null) return 0.0;
+    if (price is double) return price;
+    if (price is int) return price.toDouble();
+    if (price is String) {
+      try {
+        return double.parse(price);
+      } catch (e) {
+        return 0.0;
+      }
+    }
+    try {
+      return (price as num).toDouble();
+    } catch (e) {
+      return 0.0;
+    }
   }
 
   // Helper widget for the small tags

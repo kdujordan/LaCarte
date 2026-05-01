@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/category_chip.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/food_carousel_card.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class CategoriesSection extends StatefulWidget {
@@ -12,153 +14,155 @@ class CategoriesSection extends StatefulWidget {
 }
 
 class _CategoriesSectionState extends State<CategoriesSection> {
-  final List<Map<String, dynamic>> categories = [
-    {"name": "All", "icon": null},
-    {
-      "name": "Pizza",
-      "icon":
-          "https://images.pexels.com/photos/35017345/pexels-photo-35017345.jpeg",
-    },
-    {
-      "name": "Pasta",
-      "icon":
-          "https://images.pexels.com/photos/29653125/pexels-photo-29653125.jpeg",
-    },
-    {
-      "name": "Noodles",
-      "icon":
-          "https://images.pexels.com/photos/4223946/pexels-photo-4223946.jpeg",
-    },
-    {
-      "name": "Burgers",
-      "icon":
-          "https://images.pexels.com/photos/5554607/pexels-photo-5554607.jpeg",
-    },
-    {
-      "name": "Salads",
-      "icon":
-          "https://images.pexels.com/photos/406152/pexels-photo-406152.jpeg",
-    },
-    {
-      "name": "Desserts",
-      "icon":
-          "https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg",
-    },
-    {
-      "name": "Drinks",
-      "icon":
-          "https://images.pexels.com/photos/605408/pexels-photo-605408.jpeg",
-    },
-  ];
+  // final List<Map<String, dynamic>> categories = [
+  //   {"name": "All", "icon": null},
+  //   {
+  //     "name": "Pizza",
+  //     "icon":
+  //         "https://images.pexels.com/photos/35017345/pexels-photo-35017345.jpeg",
+  //   },
+  //   {
+  //     "name": "Pasta",
+  //     "icon":
+  //         "https://images.pexels.com/photos/29653125/pexels-photo-29653125.jpeg",
+  //   },
+  //   {
+  //     "name": "Noodles",
+  //     "icon":
+  //         "https://images.pexels.com/photos/4223946/pexels-photo-4223946.jpeg",
+  //   },
+  //   {
+  //     "name": "Burgers",
+  //     "icon":
+  //         "https://images.pexels.com/photos/5554607/pexels-photo-5554607.jpeg",
+  //   },
+  //   {
+  //     "name": "Salads",
+  //     "icon":
+  //         "https://images.pexels.com/photos/406152/pexels-photo-406152.jpeg",
+  //   },
+  //   {
+  //     "name": "Desserts",
+  //     "icon":
+  //         "https://images.pexels.com/photos/1126359/pexels-photo-1126359.jpeg",
+  //   },
+  //   {
+  //     "name": "Drinks",
+  //     "icon":
+  //         "https://images.pexels.com/photos/605408/pexels-photo-605408.jpeg",
+  //   },
+  // ];
 
   int _selectedCategoryIndex = 0;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
 
-  final List<Map<String, dynamic>> foodItems = [
-    {
-      "name": "Margherita Basil",
-      "category": "Pizza",
-      "price": 12.99,
-      "image":
-          "https://images.pexels.com/photos/1146760/pexels-photo-1146760.jpeg",
-      "description": "Fresh mozzarella, tomato sauce, and organic basil.",
-    },
-    {
-      "name": "Creamy Fettuccine",
-      "category": "Pasta",
-      "price": 15.50,
-      "image":
-          "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg",
-      "description": "Homemade pasta with garlic parmesan cream sauce.",
-    },
-    {
-      "name": "Spicy Miso Ramen",
-      "category": "Noodles",
-      "price": 14.00,
-      "image":
-          "https://images.pexels.com/photos/1907228/pexels-photo-1907228.jpeg",
-      "description": "Rich broth with bamboo shoots and soft-boiled egg.",
-    },
-    {
-      "name": "Truffle Beef Burger",
-      "category": "Burgers",
-      "price": 18.00,
-      "image":
-          "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
-      "description": "Wagyu beef patty with truffle aioli and brioche bun.",
-    },
-    {
-      "name": "Pesto Penne",
-      "category": "Pasta",
-      "price": 13.50,
-      "image":
-          "https://images.pexels.com/photos/1273765/pexels-photo-1273765.jpeg",
-      "description": "Fresh basil pesto with toasted pine nuts.",
-    },
-    {
-      "name": "Double Cheese Smash",
-      "category": "Burgers",
-      "price": 16.00,
-      "image":
-          "https://images.pexels.com/photos/1199957/pexels-photo-1199957.jpeg",
-      "description": "Two smashed patties with sharp cheddar and pickles.",
-    },
-    // --- New Items ---
-    {
-      "name": "Greek Quinoa Salad",
-      "category": "Salads",
-      "price": 11.00,
-      "image":
-          "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
-      "description":
-          "Crisp cucumbers, olives, and feta with lemon vinaigrette.",
-    },
-    {
-      "name": "Pepperoni Feast",
-      "category": "Pizza",
-      "price": 14.50,
-      "image":
-          "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg",
-      "description": "Double layer of spicy pepperoni and extra cheese.",
-    },
-    {
-      "name": "Pad Thai Shrimp",
-      "category": "Noodles",
-      "price": 16.50,
-      "image":
-          "https://images.pexels.com/photos/5848496/pexels-photo-5848496.jpeg",
-      "description": "Stir-fried rice noodles with tamarind sauce and peanuts.",
-    },
-    {
-      "name": "Lava Chocolate Cake",
-      "category": "Desserts",
-      "price": 8.50,
-      "image":
-          "https://images.pexels.com/photos/45202/brownie-dessert-cake-sweet-45202.jpeg",
-      "description":
-          "Warm chocolate cake with a molten center and vanilla ice cream.",
-    },
-    {
-      "name": "Berry Blast Smoothie",
-      "category": "Drinks",
-      "price": 6.99,
-      "image":
-          "https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg",
-      "description": "Blended blueberries, strawberries, and Greek yogurt.",
-    },
-    {
-      "name": "Classic Tiramisu",
-      "category": "Desserts",
-      "price": 9.00,
-      "image":
-          "https://images.pexels.com/photos/6880219/pexels-photo-6880219.jpeg",
-      "description": "Coffee-soaked ladyfingers with mascarpone cream.",
-    },
-  ];
+  // final List<Map<String, dynamic>> foodItems = [
+  //   {
+  //     "name": "Margherita Basil",
+  //     "category": "Pizza",
+  //     "price": 12.99,
+  //     "image":
+  //         "https://images.pexels.com/photos/1146760/pexels-photo-1146760.jpeg",
+  //     "description": "Fresh mozzarella, tomato sauce, and organic basil.",
+  //   },
+  //   {
+  //     "name": "Creamy Fettuccine",
+  //     "category": "Pasta",
+  //     "price": 15.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg",
+  //     "description": "Homemade pasta with garlic parmesan cream sauce.",
+  //   },
+  //   {
+  //     "name": "Spicy Miso Ramen",
+  //     "category": "Noodles",
+  //     "price": 14.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1907228/pexels-photo-1907228.jpeg",
+  //     "description": "Rich broth with bamboo shoots and soft-boiled egg.",
+  //   },
+  //   {
+  //     "name": "Truffle Beef Burger",
+  //     "category": "Burgers",
+  //     "price": 18.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
+  //     "description": "Wagyu beef patty with truffle aioli and brioche bun.",
+  //   },
+  //   {
+  //     "name": "Pesto Penne",
+  //     "category": "Pasta",
+  //     "price": 13.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/1273765/pexels-photo-1273765.jpeg",
+  //     "description": "Fresh basil pesto with toasted pine nuts.",
+  //   },
+  //   {
+  //     "name": "Double Cheese Smash",
+  //     "category": "Burgers",
+  //     "price": 16.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1199957/pexels-photo-1199957.jpeg",
+  //     "description": "Two smashed patties with sharp cheddar and pickles.",
+  //   },
+  //   // --- New Items ---
+  //   {
+  //     "name": "Greek Quinoa Salad",
+  //     "category": "Salads",
+  //     "price": 11.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1213710/pexels-photo-1213710.jpeg",
+  //     "description":
+  //         "Crisp cucumbers, olives, and feta with lemon vinaigrette.",
+  //   },
+  //   {
+  //     "name": "Pepperoni Feast",
+  //     "category": "Pizza",
+  //     "price": 14.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg",
+  //     "description": "Double layer of spicy pepperoni and extra cheese.",
+  //   },
+  //   {
+  //     "name": "Pad Thai Shrimp",
+  //     "category": "Noodles",
+  //     "price": 16.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/5848496/pexels-photo-5848496.jpeg",
+  //     "description": "Stir-fried rice noodles with tamarind sauce and peanuts.",
+  //   },
+  //   {
+  //     "name": "Lava Chocolate Cake",
+  //     "category": "Desserts",
+  //     "price": 8.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/45202/brownie-dessert-cake-sweet-45202.jpeg",
+  //     "description":
+  //         "Warm chocolate cake with a molten center and vanilla ice cream.",
+  //   },
+  //   {
+  //     "name": "Berry Blast Smoothie",
+  //     "category": "Drinks",
+  //     "price": 6.99,
+  //     "image":
+  //         "https://images.pexels.com/photos/103566/pexels-photo-103566.jpeg",
+  //     "description": "Blended blueberries, strawberries, and Greek yogurt.",
+  //   },
+  //   {
+  //     "name": "Classic Tiramisu",
+  //     "category": "Desserts",
+  //     "price": 9.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/6880219/pexels-photo-6880219.jpeg",
+  //     "description": "Coffee-soaked ladyfingers with mascarpone cream.",
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
+    final menuViewModel = context.watch<MenuViewModel>();
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -189,7 +193,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                     height: 50,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
+                      itemCount: menuViewModel.categories.length,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 15,
                         // vertical: 10,
@@ -208,9 +212,12 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                             );
                           },
                           child: CategoryChip(
-                            label: categories[index]["name"],
+                            label:
+                                menuViewModel.categories[index]["name"] ??
+                                'Unknown',
                             isSelected: _selectedCategoryIndex == index,
-                            iconPath: categories[index]["icon"],
+                            iconPath:
+                                menuViewModel.categories[index]["icon_name"],
                           ),
                         );
                       },
@@ -225,15 +232,18 @@ class _CategoriesSectionState extends State<CategoriesSection> {
 
           SliverFillRemaining(
             child: ScrollablePositionedList.builder(
-              itemCount: categories.length,
+              itemCount: menuViewModel.categories.length,
               itemScrollController: _itemScrollController,
               itemBuilder: (context, index) {
-                final String categoryName = categories[index]["name"];
-                final List<Map<String, dynamic>> filteredItems =
-                    categoryName == "All"
-                    ? foodItems
-                    : foodItems
-                          .where((item) => item["category"] == categoryName)
+                final String categoryName =
+                    menuViewModel.categories[index]["name"] ?? "Unknown";
+                final List<dynamic> filteredItems = categoryName == "All"
+                    ? menuViewModel.allMenuItems
+                    : menuViewModel.allMenuItems
+                          .where(
+                            (item) =>
+                                (item["category_name"] ?? "") == categoryName,
+                          )
                           .toList();
 
                 return Column(
@@ -283,7 +293,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
 
                     const SizedBox(height: 40),
 
-                    if (index == categories.length - 1)
+                    if (index == menuViewModel.categories.length - 1)
                       const SizedBox(height: 400),
                   ],
                 );

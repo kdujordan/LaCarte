@@ -2,8 +2,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lacarte/ui/core/ui/categories_section.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/category_chip.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/food_carousel_card.dart';
+import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 // import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -15,88 +17,90 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Map<String, dynamic>> categories = [
-    {"name": "All", "icon": null},
-    {
-      "name": "Pizza",
-      "icon":
-          "https://images.pexels.com/photos/35017345/pexels-photo-35017345.jpeg",
-    },
-    {
-      "name": "Pasta",
-      "icon":
-          "https://images.pexels.com/photos/29653125/pexels-photo-29653125.jpeg",
-    },
-    {
-      "name": "Noodles",
-      "icon":
-          "https://images.pexels.com/photos/4223946/pexels-photo-4223946.jpeg",
-    },
-    {
-      "name": "Burgers",
-      "icon":
-          "https://images.pexels.com/photos/5554607/pexels-photo-5554607.jpeg",
-    },
-  ];
+  // final List<Map<String, dynamic>> categories = [
+  //   {"name": "All", "icon": null},
+  //   {
+  //     "name": "Pizza",
+  //     "icon":
+  //         "https://images.pexels.com/photos/35017345/pexels-photo-35017345.jpeg",
+  //   },
+  //   {
+  //     "name": "Pasta",
+  //     "icon":
+  //         "https://images.pexels.com/photos/29653125/pexels-photo-29653125.jpeg",
+  //   },
+  //   {
+  //     "name": "Noodles",
+  //     "icon":
+  //         "https://images.pexels.com/photos/4223946/pexels-photo-4223946.jpeg",
+  //   },
+  //   {
+  //     "name": "Burgers",
+  //     "icon":
+  //         "https://images.pexels.com/photos/5554607/pexels-photo-5554607.jpeg",
+  //   },
+  // ];
 
   int _selectedCategoryIndex = 0;
 
   final ItemScrollController _itemScrollController = ItemScrollController();
 
-  final List<Map<String, dynamic>> foodItems = [
-    {
-      "name": "Margherita Basil",
-      "category": "Pizza",
-      "price": 12.99,
-      "image":
-          "https://images.pexels.com/photos/1146760/pexels-photo-1146760.jpeg",
-      "description": "Fresh mozzarella, tomato sauce, and organic basil.",
-    },
-    {
-      "name": "Creamy Fettuccine",
-      "category": "Pasta",
-      "price": 15.50,
-      "image":
-          "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg",
-      "description": "Homemade pasta with garlic parmesan cream sauce.",
-    },
-    {
-      "name": "Spicy Miso Ramen",
-      "category": "Noodles",
-      "price": 14.00,
-      "image":
-          "https://images.pexels.com/photos/1907228/pexels-photo-1907228.jpeg",
-      "description": "Rich broth with bamboo shoots and soft-boiled egg.",
-    },
-    {
-      "name": "Truffle Beef Burger",
-      "category": "Burgers",
-      "price": 18.00,
-      "image":
-          "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
-      "description": "Wagyu beef patty with truffle aioli and brioche bun.",
-    },
-    {
-      "name": "Pesto Penne",
-      "category": "Pasta",
-      "price": 13.50,
-      "image":
-          "https://images.pexels.com/photos/1273765/pexels-photo-1273765.jpeg",
-      "description": "Fresh basil pesto with toasted pine nuts.",
-    },
-    {
-      "name": "Double Cheese Smash",
-      "category": "Burgers",
-      "price": 16.00,
-      "image":
-          "https://images.pexels.com/photos/1199957/pexels-photo-1199957.jpeg",
-      "description": "Two smashed patties with sharp cheddar and pickles.",
-    },
-  ];
+  // final List<Map<String, dynamic>> foodItems = [
+  //   {
+  //     "name": "Margherita Basil",
+  //     "category": "Pizza",
+  //     "price": 12.99,
+  //     "image":
+  //         "https://images.pexels.com/photos/1146760/pexels-photo-1146760.jpeg",
+  //     "description": "Fresh mozzarella, tomato sauce, and organic basil.",
+  //   },
+  //   {
+  //     "name": "Creamy Fettuccine",
+  //     "category": "Pasta",
+  //     "price": 15.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg",
+  //     "description": "Homemade pasta with garlic parmesan cream sauce.",
+  //   },
+  //   {
+  //     "name": "Spicy Miso Ramen",
+  //     "category": "Noodles",
+  //     "price": 14.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1907228/pexels-photo-1907228.jpeg",
+  //     "description": "Rich broth with bamboo shoots and soft-boiled egg.",
+  //   },
+  //   {
+  //     "name": "Truffle Beef Burger",
+  //     "category": "Burgers",
+  //     "price": 18.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1639557/pexels-photo-1639557.jpeg",
+  //     "description": "Wagyu beef patty with truffle aioli and brioche bun.",
+  //   },
+  //   {
+  //     "name": "Pesto Penne",
+  //     "category": "Pasta",
+  //     "price": 13.50,
+  //     "image":
+  //         "https://images.pexels.com/photos/1273765/pexels-photo-1273765.jpeg",
+  //     "description": "Fresh basil pesto with toasted pine nuts.",
+  //   },
+  //   {
+  //     "name": "Double Cheese Smash",
+  //     "category": "Burgers",
+  //     "price": 16.00,
+  //     "image":
+  //         "https://images.pexels.com/photos/1199957/pexels-photo-1199957.jpeg",
+  //     "description": "Two smashed patties with sharp cheddar and pickles.",
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
     // final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final menuViewModel = context.watch<MenuViewModel>();
+
     return Scaffold(
       body: CustomScrollView(
         physics: BouncingScrollPhysics(),
@@ -267,99 +271,112 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(
                   height: 50,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCategoryIndex = index;
-                          });
+                  child:
+                      menuViewModel.categories.isEmpty &&
+                          menuViewModel.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: menuViewModel.categories.length,
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategoryIndex = index;
+                                });
 
-                          _itemScrollController.scrollTo(
-                            index: index,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        child: CategoryChip(
-                          label: categories[index]["name"],
-                          isSelected: _selectedCategoryIndex == index,
-                          iconPath: categories[index]["icon"],
+                                // _itemScrollController.scrollTo(
+                                //   index: index,
+                                //   duration: Duration(milliseconds: 500),
+                                //   curve: Curves.easeInOut,
+                                // );
+                              },
+                              child: CategoryChip(
+                                label:
+                                    menuViewModel.categories[index]["name"] ??
+                                    'Unknown',
+                                isSelected: _selectedCategoryIndex == index,
+                                iconPath: menuViewModel
+                                    .categories[index]["icon_name"],
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
               ],
             ),
           ),
           SliverFillRemaining(
-            child: ScrollablePositionedList.builder(
-              itemCount: categories.length,
-              itemScrollController: _itemScrollController,
-              itemBuilder: (context, index) {
-                final String categoryName = categories[index]["name"];
-                final List<Map<String, dynamic>> filteredItems =
-                    categoryName == "All"
-                    ? foodItems
-                    : foodItems
-                          .where((item) => item["category"] == categoryName)
-                          .toList();
+            child: menuViewModel.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ScrollablePositionedList.builder(
+                    itemCount: menuViewModel.categories.length,
+                    itemScrollController: _itemScrollController,
+                    itemBuilder: (context, index) {
+                      final String categoryName =
+                          menuViewModel.categories[index]["name"] ?? "Unknown";
+                      final List<dynamic> filteredItems = categoryName == "All"
+                          ? menuViewModel.allMenuItems
+                          : menuViewModel.allMenuItems
+                                .where(
+                                  (item) =>
+                                      (item["category_name"] ?? "") ==
+                                      categoryName,
+                                )
+                                .toList();
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 15,
-                      ),
-                      child: Text(
-                        categoryName,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 15,
+                            ),
+                            child: Text(
+                              categoryName,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
 
-                    // Placeholder for category items
-                    if (filteredItems.isNotEmpty)
-                      CarouselSlider.builder(
-                        itemCount: filteredItems.length,
-                        itemBuilder: (context, itemIndex, pageViewIndex) {
-                          return FoodCarouselCard(
-                            item: filteredItems[itemIndex],
-                          );
-                        },
-                        options: CarouselOptions(
-                          height: 420.0,
-                          viewportFraction: 0.75,
-                          enableInfiniteScroll: false,
-                          padEnds: false,
-                          disableCenter: true,
-                        ),
-                      )
-                    else
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          "No items available in this category.",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
+                          // Placeholder for category items
+                          if (filteredItems.isNotEmpty)
+                            CarouselSlider.builder(
+                              itemCount: filteredItems.length,
+                              itemBuilder: (context, itemIndex, pageViewIndex) {
+                                return FoodCarouselCard(
+                                  item: filteredItems[itemIndex],
+                                );
+                              },
+                              options: CarouselOptions(
+                                height: 420.0,
+                                viewportFraction: 0.75,
+                                enableInfiniteScroll: false,
+                                padEnds: false,
+                                disableCenter: true,
+                              ),
+                            )
+                          else
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: Text(
+                                "No items available in this category.",
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ),
 
-                    const SizedBox(height: 40),
+                          const SizedBox(height: 40),
 
-                    if (index == categories.length - 1)
-                      const SizedBox(height: 400),
-                  ],
-                );
-              },
-            ),
+                          if (index == menuViewModel.categories.length - 1)
+                            const SizedBox(height: 400),
+                        ],
+                      );
+                    },
+                  ),
           ),
         ],
       ),
