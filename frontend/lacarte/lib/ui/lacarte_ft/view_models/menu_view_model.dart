@@ -22,7 +22,7 @@ class MenuViewModel extends ChangeNotifier {
 
       allMenuItems = await _menuService.getMenuItems();
 
-      if (categories.isNotEmpty) {
+      if (categories.isNotEmpty && categories[0]['id'] != null) {
         await loadItemsForCategory(categories[0]['id']);
       }
     } catch (e) {
@@ -33,7 +33,7 @@ class MenuViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> loadItemsForCategory(int categoryId) async {
+  Future<void> loadItemsForCategory(int? categoryId) async {
     isLoading = true;
     notifyListeners();
 
