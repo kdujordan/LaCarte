@@ -9,7 +9,7 @@ import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
-  await dotenv.load();
+  await dotenv.load(fileName: 'assets/.env');
   runApp(
     MultiProvider(
       providers: [
