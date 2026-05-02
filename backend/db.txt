@@ -1,1 +1,3 @@
 postgresql://neondb_owner:npg_bMCO4Z9Qtwkj@ep-billowing-moon-a4dds48v.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+postgresql://neondb_owner:npg_bMCO4Z9Qtwkj@ep-billowing-moon-a4dds48v-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
