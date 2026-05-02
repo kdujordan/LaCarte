@@ -358,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                                 enableInfiniteScroll: false,
                                 padEnds: true,
                                 enlargeCenterPage: true,
-                                enlargeFactor: 0.2,
+                                enlargeFactor: 0.1,
                                 // disableCenter: true,
                               ),
                             )

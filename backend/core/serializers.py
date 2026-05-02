@@ -33,9 +33,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         if obj.image:
-            return obj.image.build_url(
-                width=800, height=600, crop="fill", quality="auto"
-            )
+            return obj.image.url
         return None
 
 
@@ -64,9 +62,7 @@ class MenuItemListSerializer(serializers.ModelSerializer):
 
     def get_image_url(self, obj):
         if obj.image:
-            return obj.image.build_url(
-                width=800, height=600, crop="fill", quality="auto"
-            )
+            return obj.image.url
         return None
 
 
