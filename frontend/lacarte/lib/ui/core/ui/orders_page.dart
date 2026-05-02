@@ -10,6 +10,12 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Center(child: Text('Orders')));
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      body: Center(child: Text('Orders')),
+    );
   }
 }

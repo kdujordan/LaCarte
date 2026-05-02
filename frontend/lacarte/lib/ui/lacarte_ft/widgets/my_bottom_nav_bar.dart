@@ -15,6 +15,7 @@ class MyBottomNavBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.tertiary,
+        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
         borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
@@ -36,6 +37,7 @@ class MyBottomNavBar extends StatelessWidget {
         padding: EdgeInsetsGeometry.symmetric(vertical: 12.0, horizontal: 20.0),
         tabs: const [
           GButton(icon: Icons.restaurant_menu, text: 'menu'),
+          GButton(icon: Icons.ramen_dining, text: 'Categories'),
           GButton(icon: Icons.lunch_dining, text: 'Orders'),
           GButton(icon: Icons.movie, text: 'Explore'),
           // GButton(icon: Icons.settings_outlined, text: 'Settings'),

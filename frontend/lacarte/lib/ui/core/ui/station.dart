@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lacarte/ui/core/ui/categories_section.dart';
 import 'package:lacarte/ui/core/ui/explore_page.dart';
 import 'package:lacarte/ui/core/ui/home_page.dart';
 import 'package:lacarte/ui/core/ui/orders_page.dart';
@@ -14,7 +15,12 @@ class Station extends StatefulWidget {
 class _StationState extends State<Station> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [HomePage(), OrdersPage(), ExplorePage()];
+  final List<Widget> _pages = [
+    HomePage(),
+    CategoriesSection(),
+    OrdersPage(),
+    ExplorePage(),
+  ];
 
   void onTabChange(index) {
     setState(() {

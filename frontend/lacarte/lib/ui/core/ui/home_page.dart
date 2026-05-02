@@ -2,6 +2,8 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lacarte/ui/core/ui/categories_section.dart';
+import 'package:lacarte/ui/core/ui/menu_item_details_page.dart';
+import 'package:lacarte/ui/core/ui/orders_page.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/category_chip.dart';
 import 'package:lacarte/ui/lacarte_ft/widgets/food_carousel_card.dart';
@@ -115,8 +117,27 @@ class _HomePageState extends State<HomePage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
             ),
-            leading: IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
-            title: Text("Berries", style: GoogleFonts.boldonse()),
+            // leading: IconButton(onPressed: () {}, icon: Icon(Icons.menu)),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const OrdersPage(),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.shopping_basket_outlined, size: 30),
+              ),
+            ],
+            title: Text(
+              "Berries",
+              style: GoogleFonts.montserrat(
+                fontSize: 30,
+                letterSpacing: -0.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             // bottom: ,
             flexibleSpace: FlexibleSpaceBar(
               // title: Text(
@@ -145,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Colors.transparent, Color(0xFF485935)],
+                              colors: [Colors.transparent, Color(0xFF18442A)],
                               stops: [0.1, 1.0],
                             ),
                           ),
@@ -263,12 +284,15 @@ class _HomePageState extends State<HomePage> {
                         },
                         child: const Text(
                           'See all',
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(color: Colors.blueGrey),
                         ),
                       ),
                     ],
                   ),
                 ),
+                // Divider(height: 1, color: Colors.grey[300]),
+                SizedBox(height: 10),
+
                 SizedBox(
                   height: 50,
                   child:
@@ -304,6 +328,9 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                 ),
+
+                SizedBox(height: 10),
+                Divider(height: 1, color: Colors.grey[300]),
               ],
             ),
           ),
@@ -348,8 +375,22 @@ class _HomePageState extends State<HomePage> {
                             CarouselSlider.builder(
                               itemCount: filteredItems.length,
                               itemBuilder: (context, itemIndex, pageViewIndex) {
-                                return FoodCarouselCard(
-                                  item: filteredItems[itemIndex],
+                                return GestureDetector(
+                                  onTap: () {
+                                    // Handle item tap
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MenuItemDetailsPage(
+                                          item:
+                                              filteredItems[itemIndex], // Pass the specific map item here
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: FoodCarouselCard(
+                                    item: filteredItems[itemIndex],
+                                  ),
                                 );
                               },
                               options: CarouselOptions(
@@ -358,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                                 enableInfiniteScroll: false,
                                 padEnds: true,
                                 enlargeCenterPage: true,
-                                enlargeFactor: 0.1,
+                                enlargeFactor: 0.2,
                                 // disableCenter: true,
                               ),
                             )
