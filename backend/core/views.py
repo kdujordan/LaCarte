@@ -34,6 +34,8 @@ from .models import Category
 from .serializers import CategorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 # Create your views here.
 class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
@@ -120,6 +122,7 @@ class MenuItemViewSet(viewsets.ModelViewSet):
 
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     @action(detail=False, methods=["get"])
     def get_menu_items(self, request):
@@ -134,8 +137,11 @@ class MenuItemViewSet(viewsets.ModelViewSet):
         """
         Custom action for the 'Create Menu Item' button in Dashboard
         """
-        menu_item = self.create(request.data)
-        return Response(MenuItemSerializer(menu_item).data)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save() #this triggers the Cloudinary upload and saves the URL in the model
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["put"])
     def update_menu_item(self, request, pk=None):

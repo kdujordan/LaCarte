@@ -185,7 +185,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
               preferredSize: Size.fromHeight(60),
               child: Column(
                 children: [
-                  Divider(height: 1, color: Colors.grey[200]),
+                  Divider(height: 1, color: Colors.grey[300]),
 
                   SizedBox(height: 10),
 

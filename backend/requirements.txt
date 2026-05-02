@@ -13,3 +13,5 @@ channels_redis
 daphne
 django-rest-passwordreset
 PyJWT
+cloudinary 
+django-cloudinary-storage

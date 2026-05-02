@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color forestGreen = Color(0xFF485935);
-  static const Color mossGreen = Color(0xFF93A267);
-  static const Color teaGreen = Color(0xFFCADBB7);
-  static const Color offWhite = Color(0xFFFBFBFB);
+  static const Color forestGreen = Color(0xFF18442A);
+  static const Color mossGreen = Color(0xFF45644A);
+  static const Color teaGreen = Color(0xFFE4DBC4);
+  static const Color offWhite = Color(0xFFF3EDE3);
 
   static ThemeData get lightTheme {
     return ThemeData(

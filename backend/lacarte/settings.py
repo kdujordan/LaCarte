@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import environ
 import os
 from datetime import timedelta
+import cloudinary
 
 env = environ.Env(DEBUG=(bool, False))
 
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
     "analytics",
     "corsheaders",
     "django_rest_passwordreset",
+    "cloudinary",
+    "cloudinary_storage",
     # "django-filter",
 ]
 
@@ -201,3 +204,28 @@ CHANNEL_LAYERS = {
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "dkbloowwj",
+    "API_KEY": "634557597355563",
+    "API_SECRET": "2wAjGv1SQ7YNUzLacP3GSU8fJAs",
+}
+
+# Initialize Cloudinary
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+)
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    
+}

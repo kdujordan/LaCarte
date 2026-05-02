@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 import uuid
+from cloudinary.models import CloudinaryField
 
 
 # Create your models here.
@@ -48,7 +49,7 @@ class MenuItem(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='items')
-    image = models.ImageField(upload_to='menu_images/', blank=True, null=True)
+    image = CloudinaryField('menu_images', blank=True, null=True)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
