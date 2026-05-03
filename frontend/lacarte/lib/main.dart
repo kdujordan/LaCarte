@@ -7,6 +7,10 @@ import 'package:lacarte/ui/core/ui/station.dart';
 // import 'package:lacarte/ui/core/ui/station.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/auth_view_model.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/order_view_model.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/cart_view_model.dart';
+import 'package:lacarte/data/services/order_service.dart';
+import 'package:lacarte/data/services/websocket_service.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -16,6 +20,14 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         ChangeNotifierProvider(create: (_) => MenuViewModel()..loadMenuInit()),
+        ChangeNotifierProvider(create: (_) => CartViewModel()),
+        ChangeNotifierProvider(
+          create: (context) => OrderViewModel(
+            OrderService(),
+            context.read<CartViewModel>(),
+            OrderWebSocketService(),
+          ),
+        ),
       ],
       child: const MainApp(),
     ),
