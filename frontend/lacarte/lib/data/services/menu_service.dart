@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:lacarte/data/model/models.dart';
 import 'package:lacarte/data/services/api_client.dart';
 
 class MenuService {
@@ -13,7 +14,7 @@ class MenuService {
     }
   }
 
-  Future<List<dynamic>> getMenuItems({int? categoryId}) async {
+  Future<List<MenuItem>> getMenuItems({int? categoryId}) async {
     String endpoint = "category-menu/";
 
     if (categoryId != null) {
@@ -21,6 +22,8 @@ class MenuService {
     }
 
     final response = await _apiClient.dio.get(endpoint);
-    return response.data;
+    return (response.data as List<dynamic>)
+        .map((e) => MenuItem.fromJson(e))
+        .toList();
   }
 }

@@ -139,7 +139,7 @@ class MenuItemViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            serializer.save() #this triggers the Cloudinary upload and saves the URL in the model
+            serializer.save()  # this triggers the Cloudinary upload and saves the URL in the model
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

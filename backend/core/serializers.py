@@ -189,9 +189,18 @@ class TableSerializer(serializers.ModelSerializer):
         fields = ["id", "table_number", "qr_code_id", "is_active"]
 
 
+class OrderSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderSession
+        fields = ["id", "table", "is_active", "created_at"]
+
+
 class FeedbackSerializer(serializers.ModelSerializer):
     order_details = OrderSerializer(read_only=True, source="order")
-    table_details = TableSerializer(read_only=True, source="table")
+    # table_details = TableSerializer(read_only=True, source="table")
+    order_session_details = OrderSessionSerializer(
+        read_only=True, source="order_session"
+    )
 
     class Meta:
         model = Feedback
@@ -201,9 +210,9 @@ class FeedbackSerializer(serializers.ModelSerializer):
             "rating",
             "message",
             "order",
-            "table",
+            "order_session",
             "order_details",
-            "table_details",
+            "order_session_details",
             "is_read",
             "created_at",
         ]
@@ -240,12 +249,6 @@ class StaffNotificationSerializer(serializers.ModelSerializer):
         """
         notification = StaffNotification.objects.create(**validated_data)
         return notification
-
-
-class OrderSessionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = OrderSession
-        fields = ["id", "table", "is_active", "created_at"]
 
 
 class CategorySerializer(serializers.ModelSerializer):

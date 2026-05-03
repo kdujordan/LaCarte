@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lacarte/ui/core/themes/app_theme.dart';
 import 'package:lacarte/ui/core/ui/intro_page.dart';
+import 'package:lacarte/ui/core/ui/station.dart';
 // import 'package:lacarte/ui/core/ui/home_page.dart';
 // import 'package:lacarte/ui/core/ui/station.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/auth_view_model.dart';
@@ -29,7 +30,14 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: IntroPage(),
+      // home: IntroPage(),
+      initialRoute: '/intro',
+      routes: {
+        '/intro': (context) => IntroPage(),
+        // '/cart': (context) => CartPage(),
+        // '/order-status': (context) => OrderStatusPage(),
+        '/station': (context) => Station(),
+      },
     );
   }
 }

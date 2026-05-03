@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:lacarte/data/model/models.dart';
 import 'package:lacarte/data/services/api_client.dart';
 
 class AuthService {
@@ -6,7 +7,7 @@ class AuthService {
 
   // For Guests scanning the Qr Code
 
-  Future<Map<String, dynamic>> scanTable(String qrCodeID) async {
+  Future<OrderSession> scanTable(String qrCodeID) async {
     try {
       final response = await _apiClient.dio.post(
         'scan-table/',
@@ -22,7 +23,7 @@ class AuthService {
         value: response.data['session_id'],
       );
 
-      return response.data;
+      return OrderSession.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw Exception(e.response?.data['error'] ?? 'Failed to scan table');
     }
