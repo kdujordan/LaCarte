@@ -9,6 +9,8 @@ class MenuViewModel extends ChangeNotifier {
   List<dynamic> allMenuItems = [];
   bool isLoading = false;
 
+  // List<dynamic> get _menuItems => List.unmodifiable(menuItems);
+
   Future<void> loadMenuInit() async {
     isLoading = true;
     notifyListeners();

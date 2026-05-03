@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/cart_view_model.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
+import 'package:provider/provider.dart';
 
 class MenuItemDetailsPage extends StatefulWidget {
   final Map<String, dynamic> item;
@@ -26,8 +29,26 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
     }
   }
 
+  void _showToast(String msg) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        behavior: SnackBarBehavior.floating,
+        shape: const StadiumBorder(),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cartVm = context.watch<CartViewModel>();
+    final menuVm = context.watch<MenuViewModel>();
+    int qty = cartVm.quantityOf(widget.item['id']);
+    var item = menuVm.menuItems.firstWhere((i) => i['id'] == widget.item['id']);
+
     // const Color buttonColor = Color(0xFFCADBB7);
     const Color accentIconColor = Color(0xFFD6A556);
     final String heroTag = 'item_${widget.item['id'] ?? widget.item['name']}';
@@ -212,9 +233,9 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        print(
-                          "Added $_quantity ${widget.item['name']} to cart",
-                        );
+                        qty = _quantity;
+                        cartVm.addItem(item);
+                        _showToast("Added $qty ${widget.item['name']} to cart");
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.tertiary,
