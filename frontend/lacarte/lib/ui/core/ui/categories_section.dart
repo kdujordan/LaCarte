@@ -270,6 +270,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                         itemBuilder: (context, itemIndex, pageViewIndex) {
                           return FoodCarouselCard(
                             item: filteredItems[itemIndex],
+                            heroTagPrefix: 'cat_$categoryName',
                           );
                         },
                         options: CarouselOptions(

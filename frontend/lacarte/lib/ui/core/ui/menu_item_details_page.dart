@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:lacarte/data/model/models.dart';
+import 'package:lacarte/ui/core/ui/orders_page.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/cart_view_model.dart';
 import 'package:provider/provider.dart';
 
 class MenuItemDetailsPage extends StatefulWidget {
   final Map<String, dynamic> item;
+  final String? heroTag;
 
-  const MenuItemDetailsPage({super.key, required this.item});
+  const MenuItemDetailsPage({super.key, required this.item, this.heroTag});
 
   @override
   State<MenuItemDetailsPage> createState() => _MenuItemDetailsPageState();
@@ -53,7 +55,8 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
 
     // const Color buttonColor = Color(0xFFCADBB7);
     const Color accentIconColor = Color(0xFFD6A556);
-    final String heroTag = 'item_${widget.item['id'] ?? widget.item['name']}';
+    final String heroTag =
+        widget.heroTag ?? 'item_${widget.item['id'] ?? widget.item['name']}';
 
     return Scaffold(
       body: Stack(
@@ -133,14 +136,25 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
 
                     // Cart Button
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.9),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.shopping_basket_outlined,
-                        size: 18,
+                      child: IconButton(
+                        color: Colors.black87,
+                        icon: const Icon(
+                          Icons.shopping_basket_outlined,
+                          size: 25,
+                        ),
+                        onPressed: () {
+                          // Handle cart button press
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (context) => const OrdersPage(),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],

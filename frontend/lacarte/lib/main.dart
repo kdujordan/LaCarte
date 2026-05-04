@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lacarte/ui/core/themes/app_theme.dart';
 import 'package:lacarte/ui/core/ui/intro_page.dart';
+import 'package:lacarte/ui/core/ui/orders_page.dart';
 import 'package:lacarte/ui/core/ui/station.dart';
 // import 'package:lacarte/ui/core/ui/home_page.dart';
 // import 'package:lacarte/ui/core/ui/station.dart';
@@ -46,7 +47,7 @@ class MainApp extends StatelessWidget {
       initialRoute: '/intro',
       routes: {
         '/intro': (context) => IntroPage(),
-        // '/cart': (context) => CartPage(),
+        '/cart': (context) => OrdersPage(),
         // '/order-status': (context) => OrderStatusPage(),
         '/station': (context) => Station(),
       },

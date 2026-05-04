@@ -38,9 +38,17 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 
 # Create your views here.
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+class IsStaffOrGuest(BasePermission):
+    def has_permission(self, request, view):
+        return bool((request.user and request.user.is_authenticated) or (request.auth and isinstance(request.auth, OrderSession)))
+
 class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderUpdateStatusSerializer
+    authentication_classes = [GuestSessionAuthentication, JWTAuthentication]
+    permission_classes = [IsStaffOrGuest]
 
     @action(detail=True, methods=["patch"])
     def update_status(self, request, pk=None):
@@ -49,6 +57,8 @@ class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
         """
         order = self.get_object()
         new_status = request.data.get("status")
+        if new_status:
+            new_status = new_status.upper()
         if new_status in dict(Order.STATUS_CHOICES):
             order.status = new_status
             order.save()
@@ -187,6 +197,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         """
         order = self.get_object()
         new_status = request.data.get("status")
+        if new_status:
+            new_status = new_status.upper()
         if new_status in dict(Order.STATUS_CHOICES):
             order.status = new_status
             order.save()

@@ -195,6 +195,8 @@ class _OrdersPageState extends State<OrdersPage> {
                     onValueChanged: (v) => setState(() => _valueRating = v),
                     onSubmit: _submitFeedback,
                   ),
+
+                  const SizedBox(height: 100),
                 ],
               ],
             ),

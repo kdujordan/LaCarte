@@ -3,19 +3,20 @@ import 'package:lacarte/ui/core/ui/menu_item_details_page.dart';
 
 class FoodCarouselCard extends StatelessWidget {
   final Map<String, dynamic> item;
+  final String heroTagPrefix;
 
-  const FoodCarouselCard({super.key, required this.item});
+  const FoodCarouselCard({super.key, required this.item, this.heroTagPrefix = ''});
 
   @override
   Widget build(BuildContext context) {
-    final String heroTag = 'item_${item['id'] ?? item['name']}';
+    final String heroTag = 'item_${item['id'] ?? item['name']}_$heroTagPrefix';
     return GestureDetector(
       onTap: () {
         // 2. Navigate to details when the card is tapped
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MenuItemDetailsPage(item: item),
+            builder: (context) => MenuItemDetailsPage(item: item, heroTag: heroTag),
           ),
         );
       },
@@ -164,7 +165,7 @@ class FoodCarouselCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  MenuItemDetailsPage(item: item),
+                                  MenuItemDetailsPage(item: item, heroTag: heroTag),
                             ),
                           );
                         },

@@ -71,10 +71,16 @@ class Order {
     return Order(
       id: json['id'],
       status: OrderStatusParsing.fromString(json['status']),
-      totalPrice: double.parse(json['total_price'].toString()),
+      totalPrice: double.tryParse(json['total_price']?.toString() ?? '') ?? 0.0,
       createdAt: DateTime.parse(json['created_at']),
       orderType: OrderType.values.firstWhere(
-        (e) => e.name == json['order_type'],
+        (e) =>
+            e.name == json['order_type'] ||
+            e.name == 'orderForSelf' &&
+                json['order_type'] == 'order_for_self' ||
+            e.name == 'orderForOthers' &&
+                json['order_type'] == 'order_for_others',
+        orElse: () => OrderType.orderForSelf,
       ),
       items: (json['items'] as List<dynamic>)
           .map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
@@ -101,13 +107,32 @@ class OrderItem {
   });
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
+    final dynamic menuItemJson = json['menu_item'];
+    final MenuItem parsedMenuItem;
+    if (menuItemJson is int) {
+      parsedMenuItem = MenuItem(
+        id: menuItemJson,
+        name: 'Item #$menuItemJson',
+        description: '',
+        price: 0.0,
+        image: '',
+        imageUrl: '',
+        isAvailable: true,
+        isPopular: false,
+        categoryName: '',
+      );
+    } else {
+      parsedMenuItem = MenuItem.fromJson(menuItemJson as Map<String, dynamic>);
+    }
+
     return OrderItem(
       id: json['id'],
-      menuItem: MenuItem.fromJson(json['menu_item']),
+      menuItem: parsedMenuItem,
       quantity: json['quantity'],
-      priceAtOrder: double.parse(json['price_at_order'].toString()),
-      specialRequests: json['special_requests'],
-      subtotal: double.parse(json['subtotal'].toString()),
+      priceAtOrder:
+          double.tryParse(json['price_at_order']?.toString() ?? '') ?? 0.0,
+      specialRequests: json['special_requests'] ?? '',
+      subtotal: double.tryParse(json['subtotal']?.toString() ?? '') ?? 0.0,
     );
   }
 }
@@ -140,7 +165,7 @@ class MenuItem {
       id: json['id'],
       name: json['name'],
       description: json['description'] ?? '',
-      price: double.parse(json['price'].toString()),
+      price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
       image: json['image'] ?? '',
       imageUrl: json['image_url'],
       isAvailable: json['is_available'],

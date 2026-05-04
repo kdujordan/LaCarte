@@ -12,6 +12,15 @@ class GuestSessionAuthentication(authentication.BaseAuthentication):
             return None
         
         token = auth_header.split(' ')[1]
+        
+        # Check if this is a guest token before trying to verify
+        try:
+            unverified_payload = jwt.decode(token, options={"verify_signature": False})
+            if 'session_id' not in unverified_payload:
+                return None
+        except Exception:
+            return None
+
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             
@@ -22,11 +31,11 @@ class GuestSessionAuthentication(authentication.BaseAuthentication):
         except OrderSession.DoesNotExist:
             raise AuthenticationFailed("Invalid Session or Session Expired")
             
-        except jwt.InvalidTokenError:
-            raise AuthenticationFailed("Invalid Token")
-
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed("Token Expired. Please rescan the QR Code.")
+            
+        except jwt.InvalidTokenError:
+            raise AuthenticationFailed("Invalid Token")
         
         
 

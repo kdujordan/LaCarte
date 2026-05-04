@@ -390,6 +390,7 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   child: FoodCarouselCard(
                                     item: filteredItems[itemIndex],
+                                    heroTagPrefix: 'home_$categoryName',
                                   ),
                                 );
                               },
