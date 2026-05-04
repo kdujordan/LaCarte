@@ -21,10 +21,10 @@ class OrderConsumer(AsyncWebsocketConsumer):
             self.channel_name,
         )
 
-    async def order_alert(self,event):
-        order_data = event["order"]
+    async def order_received(self, event):
+        order_data = event["message"]
 
         await self.send(text_data=json.dumps({
-            "type": "order_alert",
+            "type": "order_received",
             "data": order_data,
         }))

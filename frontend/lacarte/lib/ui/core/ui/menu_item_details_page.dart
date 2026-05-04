@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lacarte/data/model/models.dart';
 import 'package:lacarte/ui/lacarte_ft/view_models/cart_view_model.dart';
-import 'package:lacarte/ui/lacarte_ft/view_models/menu_view_model.dart';
 import 'package:provider/provider.dart';
 
 class MenuItemDetailsPage extends StatefulWidget {
@@ -33,11 +33,14 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(
+          msg,
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
         behavior: SnackBarBehavior.floating,
         shape: const StadiumBorder(),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 1),
       ),
     );
   }
@@ -45,9 +48,8 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final cartVm = context.watch<CartViewModel>();
-    final menuVm = context.watch<MenuViewModel>();
     int qty = cartVm.quantityOf(widget.item['id']);
-    var item = menuVm.menuItems.firstWhere((i) => i['id'] == widget.item['id']);
+    final menuItem = MenuItem.fromJson(widget.item);
 
     // const Color buttonColor = Color(0xFFCADBB7);
     const Color accentIconColor = Color(0xFFD6A556);
@@ -234,7 +236,9 @@ class _MenuItemDetailsPageState extends State<MenuItemDetailsPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         qty = _quantity;
-                        cartVm.addItem(item);
+                        for (int i = 0; i < _quantity; i++) {
+                          cartVm.addItem(menuItem);
+                        }
                         _showToast("Added $qty ${widget.item['name']} to cart");
                       },
                       style: ElevatedButton.styleFrom(

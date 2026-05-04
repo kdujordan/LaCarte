@@ -2,13 +2,15 @@ from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+
+# from django.db.models import F
 from core.models import Order
 from .models import DailySalesAnalytics, ProductsAnalytics, MenuPopularity
 
 
 @receiver(post_save, sender=Order)
 def update_sales_analytics(sender, instance, **kwargs):
-    if instance.status == Order.Status.PAID:
+    if instance.status == "PAID":
         today = timezone.now().date()
 
         # Get or create the row for today
@@ -34,7 +36,7 @@ def update_sales_analytics(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Order)
 def update_product_performance(sender, instance, **kwargs):
-    if instance.status == Order.Status.PAID:
+    if instance.status == "PAID":
         for item in instance.items.all():
             product_stat, created = ProductsAnalytics.objects.get_or_create(
                 menu_item=item.menu_item
@@ -46,7 +48,7 @@ def update_product_performance(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Order)
 def update_menu_popularity(sender, instance, **kwargs):
-    if instance.status == Order.Status.PAID:
+    if instance.status == "PAID":
         for item in instance.items.all():
             popularity_stat, created = MenuPopularity.objects.get_or_create(
                 item_name=item.menu_item.name

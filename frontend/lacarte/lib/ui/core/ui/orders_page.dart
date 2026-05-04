@@ -44,7 +44,10 @@ class _OrdersPageState extends State<OrdersPage> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(
+          msg,
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
         behavior: SnackBarBehavior.floating,
         shape: const StadiumBorder(),
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),

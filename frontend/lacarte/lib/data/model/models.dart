@@ -71,7 +71,7 @@ class Order {
     return Order(
       id: json['id'],
       status: OrderStatusParsing.fromString(json['status']),
-      totalPrice: json['total_price'],
+      totalPrice: double.parse(json['total_price'].toString()),
       createdAt: DateTime.parse(json['created_at']),
       orderType: OrderType.values.firstWhere(
         (e) => e.name == json['order_type'],
@@ -105,9 +105,9 @@ class OrderItem {
       id: json['id'],
       menuItem: MenuItem.fromJson(json['menu_item']),
       quantity: json['quantity'],
-      priceAtOrder: json['price_at_order'],
+      priceAtOrder: double.parse(json['price_at_order'].toString()),
       specialRequests: json['special_requests'],
-      subtotal: json['subtotal'],
+      subtotal: double.parse(json['subtotal'].toString()),
     );
   }
 }
@@ -139,9 +139,9 @@ class MenuItem {
     return MenuItem(
       id: json['id'],
       name: json['name'],
-      description: json['description'],
-      price: json['price'],
-      image: json['image'],
+      description: json['description'] ?? '',
+      price: double.parse(json['price'].toString()),
+      image: json['image'] ?? '',
       imageUrl: json['image_url'],
       isAvailable: json['is_available'],
       isPopular: json['is_popular'],

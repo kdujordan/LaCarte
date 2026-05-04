@@ -28,6 +28,7 @@ from core.views import (
     ReceiptViewSet,
     OrderItemViewSet,
     CategorizedMenuViewSet,
+    PlaceOrderView,
 )
 from rest_framework.routers import DefaultRouter
 from analytics.views import (
@@ -96,6 +97,7 @@ urlpatterns = [
         name="confirm-password-reset",
     ),
     path("api/scan-table/", ScanTableQRView.as_view(), name="scan-table"),
+    path("api/order/", PlaceOrderView.as_view(), name="place-order"),
 ]
 
 

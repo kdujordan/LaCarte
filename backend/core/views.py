@@ -276,24 +276,36 @@ class PlaceOrderView(APIView):
         """ """
         active_session = request.auth
 
+        order_type_str = request.data.get("order_type", "order_for_self")
+        order_type = "SELF" if order_type_str == "order_for_self" else "GROUP"
+
         order = Order.objects.create(
-            session_id=active_session,
-            order_type=request.data.get("order_type", "order_for_self"),
-            order={
-                "items": request.data.get("items"),
-                "total_price": request.data.get("total_price"),
-                "quantity": request.data.get("quantity"),
-                "special_requests": request.data.get("special_requests"),
-            },
+            session=active_session,
+            order_type=order_type,
+            status="PENDING",
         )
+
+        items_data = request.data.get("items", [])
+        for item_data in items_data:
+            menu_item_id = item_data.get("menu_item")
+            try:
+                menu_item = MenuItem.objects.get(id=menu_item_id)
+                OrderItem.objects.create(
+                    order=order,
+                    menu_item=menu_item,
+                    quantity=item_data.get("quantity", 1),
+                    special_requests=item_data.get("special_requests", ""),
+                    price_at_order=menu_item.price
+                )
+            except MenuItem.DoesNotExist:
+                pass
 
         channel_layer = get_channel_layer()
 
         # 2 prepare data for the kitchen
-
         kitchen_data = {
             "order_id": order.id,
-            "table_number": order.session_id.table.table_number,
+            "table_number": order.session.table.table_number,
             "items_count": order.items.count(),
             "status": order.status,
         }
@@ -303,7 +315,8 @@ class PlaceOrderView(APIView):
             "kitchen_updates", {"type": "order_received", "message": kitchen_data}
         )
 
-        return Response({"message": "Order successfully sent to kitchen!"})
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CategorizedMenuViewSet(viewsets.ReadOnlyModelViewSet):
