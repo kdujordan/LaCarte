@@ -53,19 +53,45 @@ class OrderUpdateStatusViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["patch"])
     def update_status(self, request, pk=None):
         """
-        Custom action for the ' Update Status' button in System Operations
+        Custom action for the 'Update Status' button in System Operations.
+        Now includes a WebSocket broadcast.
         """
         order = self.get_object()
         new_status = request.data.get("status")
+        
         if new_status:
             new_status = new_status.upper()
+            
         if new_status in dict(Order.STATUS_CHOICES):
+            # 1. Update the database
             order.status = new_status
             order.save()
+            
+            # 2. Prepare the payload for the WebSocket clients
+            update_data = {
+                "order_id": order.id,
+                "status": order.status,
+                "table_number": order.session.table.table_number,
+                "message": f"Order {order.id} is now {order.status}"
+            }
+            
+            # 3. Get the channel layer and broadcast
+            channel_layer = get_channel_layer()
+            
+            # Broadcast to the kitchen (existing group)
+            async_to_sync(channel_layer.group_send)(
+                "kitchen_updates", 
+                {
+                    "type": "order_received", # This must match the handler method in your consumer
+                    "message": update_data
+                }
+            )
+            
             return Response(
                 {"message": f"Order {order.id} status updated to {new_status}"},
                 status=status.HTTP_200_OK,
             )
+            
         return Response(
             {"error": "Invalid status value"}, status=status.HTTP_400_BAD_REQUEST
         )
