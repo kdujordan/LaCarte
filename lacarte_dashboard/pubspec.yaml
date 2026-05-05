@@ -10,10 +10,50 @@ dependencies:
   flutter:
     sdk: flutter
 
+  provider: ^6.1.5+1
+  get_it: ^9.2.1
+
+  dio: ^5.7.0
+  retrofit: 
+  json_annotation: 
+
+  shared_preferences: 
+  flutter_secure_storage: 
+  jwt_decoder:
+
+  
+  google_fonts: 
+  cached_network_image: 
+  shimmer: 
+  intl: 
+ 
+  web_socket_channel: 
+ 
+  connectivity_plus: 
+  logger: 
+ 
+  timeago: 
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 
+  build_runner: 
+  retrofit_generator: 
+  json_serializable: 
+
 flutter:
   uses-material-design: true
+
+
+  assets:
+    - assets/
+
+  # fonts:
+  # - family: Roboto
+  #   fonts:
+  #     - asset: assets/fonts/Roboto-Regular.ttf
+  #     - asset: assets/fonts/Roboto-Bold.ttf
+  #       weight: 700
