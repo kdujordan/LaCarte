@@ -9,6 +9,9 @@ abstract class ApiClient {
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 
   // ==================== Authentication ====================
+  @POST("/signup/")
+  Future<UserResponse> signup(@Body() SignupRequest request);
+
   @POST("/token/")
   Future<TokenResponse> login(@Body() LoginRequest request);
 
@@ -92,6 +95,30 @@ abstract class ApiClient {
 }
 
 // ==================== Request/Response Models ====================
+
+@JsonSerializable()
+class SignupRequest {
+  final String email;
+  @JsonKey(name: 'first_name')
+  final String firstName;
+  @JsonKey(name: 'last_name')
+  final String lastName;
+  final String password;
+  final String role;
+
+  SignupRequest({
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.password,
+    required this.role,
+  });
+
+  factory SignupRequest.fromJson(Map<String, dynamic> json) =>
+      _$SignupRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$SignupRequestToJson(this);
+}
 
 @JsonSerializable()
 class LoginRequest {

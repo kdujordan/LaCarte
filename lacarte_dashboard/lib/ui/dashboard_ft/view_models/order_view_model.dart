@@ -1,17 +1,43 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:lacarte_dashboard/data/repositories/order_repository.dart';
 import 'package:lacarte_dashboard/data/service/api_client.dart';
+import 'package:lacarte_dashboard/data/service/websocket_service.dart';
 
 enum OrderStatus { idle, loading, success, error }
 
 class OrderViewModel extends ChangeNotifier {
   final OrderRepository _orderRepository = OrderRepository();
+  final WebsocketService _websocketService = WebsocketService();
+  StreamSubscription? _websocketSubscription;
 
   OrderStatus _status = OrderStatus.idle;
   String? _errorMessage;
   List<OrderResponse> _orders = [];
   OrderResponse? _selectedOrder;
+
+  OrderViewModel() {
+    _initWebsocket();
+  }
+
+  void _initWebsocket() {
+    _websocketService.connect();
+    _websocketSubscription = _websocketService.orderStream.listen((newOrder) {
+      final index = _orders.indexWhere((order) => order.id == newOrder.id);
+      if (index != -1) {
+        _orders[index] = newOrder;
+      } else {
+        _orders.insert(0, newOrder);
+      }
+      
+      if (_selectedOrder?.id == newOrder.id) {
+        _selectedOrder = newOrder;
+      }
+      
+      notifyListeners();
+    });
+  }
 
   // Getters
   OrderStatus get status => _status;
@@ -124,5 +150,11 @@ class OrderViewModel extends ChangeNotifier {
   double getAverageOrderValue() {
     if (_orders.isEmpty) return 0;
     return getTotalOrderValue() / _orders.length;
+  }
+
+  @override
+  void dispose() {
+    _websocketSubscription?.cancel();
+    super.dispose();
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lacarte_dashboard/ui/core/ui/login_screen.dart';
 import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/analytics_view_model.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/auth_view_model.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/menu_view_model.dart';
 import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/navigation_provider.dart';
 import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/order_view_model.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        ChangeNotifierProvider(create: (_) => MenuViewModel()),
         ChangeNotifierProvider(create: (_) => OrderViewModel()),
         ChangeNotifierProvider(create: (_) => AnalyticsViewModel()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),

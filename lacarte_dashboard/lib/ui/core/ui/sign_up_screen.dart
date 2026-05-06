@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:lacarte_dashboard/ui/core/ui/main_layout.dart';
+// import 'package:lacarte_dashboard/ui/core/ui/main_layout.dart';
+import 'package:provider/provider.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/auth_view_model.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -10,8 +12,23 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+
   // State variable to track which role is selected
   String _selectedRole = 'Manager';
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,8 +157,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    const TextField(
-                                      decoration: InputDecoration(
+                                    TextField(
+                                      controller: _firstNameController,
+                                      decoration: const InputDecoration(
                                         hintText: 'e.g. John',
                                       ),
                                     ),
@@ -161,8 +179,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    const TextField(
-                                      decoration: InputDecoration(
+                                    TextField(
+                                      controller: _lastNameController,
+                                      decoration: const InputDecoration(
                                         hintText: 'e.g. Doe',
                                       ),
                                     ),
@@ -182,8 +201,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const TextField(
-                            decoration: InputDecoration(
+                          TextField(
+                            controller: _emailController,
+                            decoration: const InputDecoration(
                               hintText: 'name@restaurant.com',
                               prefixIcon: Icon(Icons.email_outlined, size: 20),
                             ),
@@ -199,14 +219,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const TextField(
-                            obscureText: true,
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               hintText: 'Create a strong password',
-                              prefixIcon: Icon(Icons.lock_outline, size: 20),
-                              suffixIcon: Icon(
-                                Icons.visibility_off_outlined,
-                                size: 20,
+                              prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
                               ),
                             ),
                           ),
@@ -254,27 +282,78 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // Navigate to the dashboard and remove auth screens from history
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const MainLayout(),
-                                  ),
-                                  (Route<dynamic> route) =>
-                                      false, // Clears the entire back stack
+                              onPressed: () async {
+                                final authViewModel = context
+                                    .read<AuthViewModel>();
+                                if (authViewModel.status == AuthStatus.loading)
+                                  return;
+
+                                // Map role
+                                String backendRole = 'ORDER_MANAGER';
+                                if (_selectedRole == 'Manager')
+                                  backendRole = 'ORDER_MANAGER';
+                                // The backend currently only supports ADMIN, HEAD_OF_OPERATIONS, ORDER_MANAGER.
+                                // We map everything to ORDER_MANAGER for now.
+
+                                final success = await authViewModel.signup(
+                                  _emailController.text,
+                                  _firstNameController.text,
+                                  _lastNameController.text,
+                                  _passwordController.text,
+                                  backendRole,
                                 );
+
+                                if (!mounted) return;
+
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Registration successful! Please wait for admin approval before logging in.',
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(
+                                    context,
+                                  ); // Go back to login screen
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        authViewModel.errorMessage ??
+                                            'Signup failed',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  authViewModel.clearError();
+                                }
                               },
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Create Account',
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward, size: 18),
-                                ],
+                              child: Consumer<AuthViewModel>(
+                                builder: (context, auth, child) {
+                                  if (auth.status == AuthStatus.loading) {
+                                    return const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    );
+                                  }
+                                  return const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Create Account',
+                                        style: TextStyle(fontSize: 15),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.arrow_forward, size: 18),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ),

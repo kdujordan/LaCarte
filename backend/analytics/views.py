@@ -8,6 +8,7 @@ from .serializers import (
     DailySalesAnalyticsSerializer,
     ProductsAnalyticsSerializer,
     MenuPopularitySerializer,
+    UserSignupSerializer,
 )
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -17,8 +18,14 @@ from django.conf import settings
 from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer
 from rest_framework.decorators import action
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from .permissions import IsOrderManager, IsHeadOfOperationsOrAdmin
+
+
+class UserSignupView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSignupSerializer
+    permission_classes = [AllowAny]
 
 
 class DailySalesAnalyticsView(APIView):

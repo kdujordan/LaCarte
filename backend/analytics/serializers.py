@@ -28,8 +28,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email','role','is_approved','first_name','last_name']
-        read_only_fields = ['is_approved']
+        fields = ['id', 'email', 'role', 'is_approved', 'first_name', 'last_name']
+        read_only_fields = ['id', 'is_approved']
 
 class DailySalesAnalyticsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,8 +54,8 @@ class UserSignupSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email','first_name','last_name','password','role']
-        write_only_fields = ['password']
+        fields = ['id', 'email', 'first_name', 'last_name', 'password', 'role', 'is_approved']
+        read_only_fields = ['id', 'is_approved']
         
     def create(self, validated_data):
         #Create user but keep them unapproved

@@ -6,6 +6,24 @@ part of 'api_client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+SignupRequest _$SignupRequestFromJson(Map<String, dynamic> json) =>
+    SignupRequest(
+      email: json['email'] as String,
+      firstName: json['first_name'] as String,
+      lastName: json['last_name'] as String,
+      password: json['password'] as String,
+      role: json['role'] as String,
+    );
+
+Map<String, dynamic> _$SignupRequestToJson(SignupRequest instance) =>
+    <String, dynamic>{
+      'email': instance.email,
+      'first_name': instance.firstName,
+      'last_name': instance.lastName,
+      'password': instance.password,
+      'role': instance.role,
+    };
+
 LoginRequest _$LoginRequestFromJson(Map<String, dynamic> json) => LoginRequest(
   email: json['email'] as String,
   password: json['password'] as String,
@@ -338,7 +356,7 @@ Map<String, dynamic> _$StaffResponseToJson(StaffResponse instance) =>
 
 class _ApiClient implements ApiClient {
   _ApiClient(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'http://your-backend-url.com/api';
+    baseUrl ??= 'http://localhost:8000/api';
   }
 
   final Dio _dio;
@@ -346,6 +364,34 @@ class _ApiClient implements ApiClient {
   String? baseUrl;
 
   final ParseErrorLogger? errorLogger;
+
+  @override
+  Future<UserResponse> signup(SignupRequest request) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
+    final _options = _setStreamType<UserResponse>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/signup/',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late UserResponse _value;
+    try {
+      _value = UserResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
 
   @override
   Future<TokenResponse> login(LoginRequest request) async {
