@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'api_client.g.dart';
 
-@RestApi(baseUrl: "http://localhost:8000/api")
+@RestApi(baseUrl: "http://127.0.0.1:8000/api")
 abstract class ApiClient {
   factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
 

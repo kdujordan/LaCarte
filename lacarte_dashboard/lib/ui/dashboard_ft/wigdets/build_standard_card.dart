@@ -9,6 +9,7 @@ class BuildStandardCard extends StatelessWidget {
   final String btnText;
   final bool isBtnPrimary;
   final Color? buttonColor;
+  final VoidCallback? onBtnPressed;
 
   const BuildStandardCard({
     required this.id,
@@ -19,6 +20,7 @@ class BuildStandardCard extends StatelessWidget {
     required this.btnText,
     required this.isBtnPrimary,
     this.buttonColor,
+    this.onBtnPressed,
     super.key,
   });
 
@@ -106,7 +108,7 @@ class BuildStandardCard extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: onBtnPressed ?? () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isBtnPrimary
                       ? (buttonColor ?? const Color(0xFF1E231F))

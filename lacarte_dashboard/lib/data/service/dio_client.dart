@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'api_client.dart';
@@ -11,7 +11,7 @@ class DioClient {
   late ApiClient apiClient;
   late Logger logger;
 
-  static const String baseUrl = "http://your-backend-url.com/api";
+  static const String baseUrl = "http://127.0.0.1:8000/api";
   static const String tokenKey = "access_token";
   static const String refreshTokenKey = "refresh_token";
 
@@ -44,6 +44,13 @@ class DioClient {
     apiClient = ApiClient(dio);
   }
 
+  // Endpoints that do not require an auth token
+  static const _publicPaths = ['/token/', '/token/refresh/', '/signup/'];
+
+  bool _isPublicPath(String path) {
+    return _publicPaths.any((p) => path.endsWith(p));
+  }
+
   Future<void> _onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
@@ -52,22 +59,31 @@ class DioClient {
     logger.i('HEADERS: ${options.headers}');
     logger.i('BODY: ${options.data}');
 
-    // Get the token from secure storage
-    final token = await _getToken();
+    // Skip token injection for public/auth endpoints
+    if (!_isPublicPath(options.path)) {
+      // Get the token from secure storage
+      final token = await _getToken();
 
-    if (token != null) {
-      // Check if token is expired
-      if (JwtDecoder.isExpired(token)) {
-        // Try to refresh token
-        final newToken = await _refreshToken();
-        if (newToken != null) {
-          options.headers['Authorization'] = 'Bearer $newToken';
-        } else {
-          // Token refresh failed, need to re-login
-          // Trigger logout event
+      if (token != null) {
+        try {
+          // Check if token is expired
+          if (JwtDecoder.isExpired(token)) {
+            // Try to refresh token
+            final newToken = await _refreshToken();
+            if (newToken != null) {
+              options.headers['Authorization'] = 'Bearer $newToken';
+            } else {
+              // Token refresh failed, need to re-login
+              // Trigger logout event
+            }
+          } else {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+        } catch (e) {
+          logger.e('Error decoding token: $e');
+          // If token is invalid/malformed, we clear it or just don't add the header
+          await clearTokens();
         }
-      } else {
-        options.headers['Authorization'] = 'Bearer $token';
       }
     }
 
@@ -95,7 +111,7 @@ class DioClient {
     );
     logger.e('ERROR MESSAGE: ${error.message}');
 
-    if (error.response?.statusCode == 401) {
+    if (error.response?.statusCode == 401 && !_isPublicPath(error.requestOptions.path)) {
       // Unauthorized - token might be invalid
       logger.w('Unauthorized request - attempting token refresh');
       final newToken = await _refreshToken();
@@ -128,8 +144,8 @@ class DioClient {
 
   Future<String?> _getToken() async {
     try {
-      const storage = FlutterSecureStorage();
-      return await storage.read(key: tokenKey);
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(tokenKey);
     } catch (e) {
       logger.e('Error reading token: $e');
       return null;
@@ -138,8 +154,8 @@ class DioClient {
 
   Future<String?> _refreshToken() async {
     try {
-      const storage = FlutterSecureStorage();
-      final refreshToken = await storage.read(key: refreshTokenKey);
+      final prefs = await SharedPreferences.getInstance();
+      final refreshToken = prefs.getString(refreshTokenKey);
 
       if (refreshToken == null) {
         return null;
@@ -152,7 +168,7 @@ class DioClient {
 
       if (response.statusCode == 200) {
         final newAccessToken = response.data['access'];
-        await storage.write(key: tokenKey, value: newAccessToken);
+        await prefs.setString(tokenKey, newAccessToken);
         return newAccessToken;
       }
     } catch (e) {
@@ -163,9 +179,9 @@ class DioClient {
 
   Future<void> saveTokens(String accessToken, String refreshToken) async {
     try {
-      const storage = FlutterSecureStorage();
-      await storage.write(key: tokenKey, value: accessToken);
-      await storage.write(key: refreshTokenKey, value: refreshToken);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(tokenKey, accessToken);
+      await prefs.setString(refreshTokenKey, refreshToken);
     } catch (e) {
       logger.e('Error saving tokens: $e');
     }
@@ -173,9 +189,9 @@ class DioClient {
 
   Future<void> clearTokens() async {
     try {
-      const storage = FlutterSecureStorage();
-      await storage.delete(key: tokenKey);
-      await storage.delete(key: refreshTokenKey);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(tokenKey);
+      await prefs.remove(refreshTokenKey);
     } catch (e) {
       logger.e('Error clearing tokens: $e');
     }

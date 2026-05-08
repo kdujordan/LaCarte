@@ -5,6 +5,8 @@ import 'package:lacarte_dashboard/ui/core/ui/menu_atelier.dart';
 import 'package:lacarte_dashboard/ui/core/ui/order_command_center.dart';
 import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/navigation_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:lacarte_dashboard/ui/core/ui/login_screen.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/auth_view_model.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({super.key});
@@ -94,6 +96,14 @@ class MainLayout extends StatelessWidget {
                   -1,
                   context,
                   navProvider.currentIndex,
+                  onTapOverride: () async {
+                    await context.read<AuthViewModel>().logout();
+                    if (!context.mounted) return;
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
               ],
@@ -112,12 +122,13 @@ class MainLayout extends StatelessWidget {
     IconData icon,
     int index,
     BuildContext context,
-    int currentIndex,
-  ) {
+    int currentIndex, {
+    VoidCallback? onTapOverride,
+  }) {
     final isActive = currentIndex == index;
 
     return GestureDetector(
-      onTap: () {
+      onTap: onTapOverride ?? () {
         if (index != -1) {
           // -1 used for settings/logout as placeholders
           context.read<NavigationProvider>().updateIndex(index);

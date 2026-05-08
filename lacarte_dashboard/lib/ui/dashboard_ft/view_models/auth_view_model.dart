@@ -18,15 +18,21 @@ class AuthViewModel extends ChangeNotifier {
 
   Future<bool> login(String email, String password) async {
     _setStatus(AuthStatus.loading);
+    print('DEBUG: Attempting to login with email: $email');
     try {
       final response = await _authRepository.login(email, password);
       _currentUser = response.user;
       _setStatus(AuthStatus.authenticated);
+      print('DEBUG: Login successful!');
       return true;
     } on DioException catch (e) {
+      print('DEBUG: DioException caught: ${e.message}');
+      print('DEBUG: Response status: ${e.response?.statusCode}');
+      print('DEBUG: Response data: ${e.response?.data}');
       _setError('Login failed: ${e.response?.data?['detail'] ?? e.message}');
       return false;
     } catch (e) {
+      print('DEBUG: General exception caught: $e');
       _setError('An error occurred: $e');
       return false;
     }
