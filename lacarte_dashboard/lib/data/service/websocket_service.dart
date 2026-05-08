@@ -14,7 +14,7 @@ class WebsocketService {
   final _orderStreamController = StreamController<OrderResponse>.broadcast();
   Stream<OrderResponse> get orderStream => _orderStreamController.stream;
 
-  final String wsUrl = "ws://127.0.0.1:8000/ws/orders/";
+  final String wsUrl = "wss://lacarte.onrender.com/ws/orders/";
 
   WebsocketService._internal();
 

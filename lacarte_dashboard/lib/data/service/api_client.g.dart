@@ -356,7 +356,7 @@ Map<String, dynamic> _$StaffResponseToJson(StaffResponse instance) =>
 
 class _ApiClient implements ApiClient {
   _ApiClient(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'http://localhost:8000/api';
+    baseUrl ??= 'https://lacarte.onrender.com/api';
   }
 
   final Dio _dio;

@@ -11,7 +11,7 @@ class DioClient {
   late ApiClient apiClient;
   late Logger logger;
 
-  static const String baseUrl = "http://127.0.0.1:8000/api";
+  static const String baseUrl = "https://lacarte.onrender.com/api";
   static const String tokenKey = "access_token";
   static const String refreshTokenKey = "refresh_token";
 
