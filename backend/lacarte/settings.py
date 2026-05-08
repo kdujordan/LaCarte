@@ -216,9 +216,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Cloudinary configuration
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": "dkbloowwj",
-    "API_KEY": "634557597355563",
-    "API_SECRET": "2wAjGv1SQ7YNUzLacP3GSU8fJAs",
+    "CLOUD_NAME": env("CLOUDINARY_CLOUD_NAME", default=""),
+    "API_KEY": env("CLOUDINARY_API_KEY", default=""),
+    "API_SECRET": env("CLOUDINARY_API_SECRET", default=""),
 }
 
 # Initialize Cloudinary
