@@ -15,6 +15,7 @@ import os
 from datetime import timedelta
 import cloudinary
 import dj_database_url
+
 env = environ.Env(DEBUG=(bool, False))
 
 
@@ -96,15 +97,15 @@ ASGI_APPLICATION = "lacarte.asgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        env('DATABASE_URL'),
+    "default": dj_database_url.parse(
+        env("DATABASE_URL"),
         conn_max_age=600,
-        ssl_require=True # Neon requires SSL
+        ssl_require=True,  # Neon requires SSL
     )
 }
 
-DATABASES['default']['OPTIONS'] = {
-    'sslmode': 'require',
+DATABASES["default"]["OPTIONS"] = {
+    "sslmode": "require",
 }
 
 
@@ -235,5 +236,8 @@ STORAGES = {
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
-    
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://lacarte.onrender.com",
+]
