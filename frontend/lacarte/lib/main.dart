@@ -13,8 +13,13 @@ import 'package:lacarte/ui/lacarte_ft/view_models/cart_view_model.dart';
 import 'package:lacarte/data/services/order_service.dart';
 import 'package:lacarte/data/services/websocket_service.dart';
 import 'package:provider/provider.dart';
+import 'package:lacarte/data/repositories/reels_repository.dart';
+import 'package:lacarte/ui/lacarte_ft/view_models/reels_view_model.dart';
+import 'package:fvp/fvp.dart' as fvp;
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  fvp.registerWith();
   await dotenv.load(fileName: 'assets/.env');
   runApp(
     MultiProvider(
@@ -28,6 +33,9 @@ void main() async {
             context.read<CartViewModel>(),
             OrderWebSocketService(),
           ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReelsViewModel(ReelsRepository())..fetchReels(),
         ),
       ],
       child: const MainApp(),

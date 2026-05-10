@@ -18,6 +18,8 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   carousel_slider: ^5.1.2
   web_socket_channel: ^3.0.3
+  video_player: ^2.11.1
+  fvp: ^0.36.2
 
 dev_dependencies:
   flutter_test:
