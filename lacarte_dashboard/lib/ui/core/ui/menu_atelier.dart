@@ -1,211 +1,262 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/menu_view_model.dart';
+// import 'package:lacarte_dashboard/data/service/api_client.dart';
+import 'package:intl/intl.dart';
 
-class MenuAtelier extends StatelessWidget {
+class MenuAtelier extends StatefulWidget {
   const MenuAtelier({super.key});
 
   @override
+  State<MenuAtelier> createState() => _MenuAtelierState();
+}
+
+class _MenuAtelierState extends State<MenuAtelier> {
+  String _selectedTab = 'All Items';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<MenuViewModel>().fetchMenuItems();
+    });
+  }
+
+  String _formatCurrency(double amount) {
+    return NumberFormat.currency(symbol: '\$').format(amount);
+  }
+
+  String _getCategoryName(int categoryId) {
+    switch (categoryId) {
+      case 1:
+        return 'Appetizers';
+      case 2:
+        return 'Mains';
+      case 3:
+        return 'Desserts';
+      case 4:
+        return 'Drinks';
+      default:
+        return 'Uncategorized';
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: 32.0,
-        right: 32.0,
-        bottom: 32.0,
-        left: 16.0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<MenuViewModel>(
+      builder: (context, menuVM, child) {
+        final allItems = menuVM.menuItems;
+        final displayedItems = _selectedTab == 'All Items'
+            ? allItems
+            : allItems
+                  .where(
+                    (item) => _getCategoryName(item.category) == _selectedTab,
+                  )
+                  .toList();
+
+        return Padding(
+          padding: const EdgeInsets.only(
+            top: 32.0,
+            right: 32.0,
+            bottom: 32.0,
+            left: 16.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Header Section
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Menu Atelier',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E231F),
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Menu Atelier',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1E231F),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Manage your digital catalog, availability, and pricing.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Manage your digital catalog, availability, and pricing.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 40,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search orders, items...',
+                            hintStyle: const TextStyle(fontSize: 13),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.notifications_none,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const CircleAvatar(
+                        backgroundImage: NetworkImage(
+                          'https://i.pravatar.cc/150?img=11',
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  SizedBox(
-                    width: 250,
-                    height: 40,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search orders, items...',
-                        hintStyle: const TextStyle(fontSize: 13),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
+              const SizedBox(height: 32),
+
+              // Categories & Action Bar
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        _buildTab(
+                          'All Items',
+                          isActive: _selectedTab == 'All Items',
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          borderSide: BorderSide.none,
+                        _buildTab(
+                          'Appetizers',
+                          isActive: _selectedTab == 'Appetizers',
+                        ),
+                        _buildTab('Mains', isActive: _selectedTab == 'Mains'),
+                        _buildTab(
+                          'Desserts',
+                          isActive: _selectedTab == 'Desserts',
+                        ),
+                        _buildTab('Drinks', isActive: _selectedTab == 'Drinks'),
+                      ],
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.add, size: 18),
+                      label: const Text(
+                        'New Item',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF728A7C), // Sage green
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.notifications_none,
-                      color: Colors.black54,
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Menu Grid
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 24,
+                  mainAxisSpacing: 24,
+                  childAspectRatio:
+                      0.85, // Adjust this to match exact proportions
+                  children: [
+                    // 1. Upload Photography Card
+                    _buildActionCard(
+                      icon: Icons.add_photo_alternate_outlined,
+                      title: 'Upload Food Photography',
+                      subtitle:
+                          'Drag and drop new images here to quickly create menu items.',
+                      btnText: 'Browse Files',
+                      isDashed: false,
+                      bgColor: const Color(0xFFF4F2EE),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      'https://i.pravatar.cc/150?img=11',
+
+                    // Dynamic items
+                    ...displayedItems.map((item) {
+                      return _buildItemCard(
+                        title: item.name,
+                        price: _formatCurrency(item.price),
+                        description: item.description,
+                        tag: _getCategoryName(item.category),
+                        isAvailable: item.isAvailable,
+                      );
+                    }),
+
+                    // Empty space to maintain grid pattern if needed
+                    // const SizedBox.shrink(),
+
+                    // 6. Manual Entry Card
+                    _buildActionCard(
+                      icon: Icons.add,
+                      title: 'Manual Entry',
+                      subtitle: 'Create an item without a photo to start.',
+                      btnText: 'Add Details',
+                      isDashed: true,
+                      bgColor: Colors.transparent,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 32),
-
-          // Categories & Action Bar
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(32),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    _buildTab('All Items', isActive: true),
-                    _buildTab('Appetizers'),
-                    _buildTab('Mains'),
-                    _buildTab('Desserts'),
-                    _buildTab('Drinks'),
-                  ],
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text(
-                    'New Item',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF728A7C), // Sage green
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Menu Grid
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 3,
-              crossAxisSpacing: 24,
-              mainAxisSpacing: 24,
-              childAspectRatio: 0.85, // Adjust this to match exact proportions
-              children: [
-                // 1. Upload Photography Card
-                _buildActionCard(
-                  icon: Icons.add_photo_alternate_outlined,
-                  title: 'Upload Food Photography',
-                  subtitle:
-                      'Drag and drop new images here to quickly create menu items.',
-                  btnText: 'Browse Files',
-                  isDashed:
-                      false, // Flutter doesn't have native dashed borders without a package, using solid soft gray
-                  bgColor: const Color(0xFFF4F2EE),
-                ),
-
-                // 2. Standard Item Card (Available)
-                _buildItemCard(
-                  title: 'Truffle Mushroom Risotto',
-                  price: '\$ 28.50',
-                  description:
-                      'Arborio rice, wild mushrooms, black truffle oil, parmesan crisp.',
-                  tag: 'Mains',
-                  isAvailable: true,
-                ),
-
-                // 3. Standard Item Card (Sold Out)
-                _buildItemCard(
-                  title: 'Seared Scallops',
-                  price: '\$ 32.00',
-                  description:
-                      'Jumbo scallops, sweet pea puree, crispy pancetta, microgreens.',
-                  tag: 'Appetizers',
-                  isAvailable: false,
-                ),
-
-                // 4. Blank Space (Matches design layout)
-                const SizedBox.shrink(),
-
-                // 5. Standard Item Card
-                _buildItemCard(
-                  title: 'Heirloom Burrata',
-                  price: '\$ 18.50',
-                  description:
-                      'Fresh burrata, heirloom tomatoes, balsamic glaze, basil oil, crostini.',
-                  tag: 'Appetizers',
-                  isAvailable: true,
-                ),
-
-                // 6. Manual Entry Card
-                _buildActionCard(
-                  icon: Icons.add,
-                  title: 'Manual Entry',
-                  subtitle: 'Create an item without a photo to start.',
-                  btnText: 'Add Details',
-                  isDashed: true,
-                  bgColor: Colors.transparent,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildTab(String title, {bool isActive = false}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: isActive ? const Color(0xFF1E231F) : Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: isActive ? Colors.white : Colors.grey.shade600,
-          fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-          fontSize: 14,
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTab = title;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFF1E231F) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isActive ? Colors.white : Colors.grey.shade600,
+            fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+            fontSize: 14,
+          ),
         ),
       ),
     );
