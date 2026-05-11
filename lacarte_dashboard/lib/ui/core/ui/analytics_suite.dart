@@ -1,10 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/analytics_view_model.dart';
+import 'package:intl/intl.dart';
 
-class AnalyticsSuite extends StatelessWidget {
+class AnalyticsSuite extends StatefulWidget {
   const AnalyticsSuite({super.key});
 
   @override
+  State<AnalyticsSuite> createState() => _AnalyticsSuiteState();
+}
+
+class _AnalyticsSuiteState extends State<AnalyticsSuite> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AnalyticsViewModel>().fetchAllAnalytics();
+    });
+  }
+
+  String _formatCurrency(double amount) {
+    return NumberFormat.currency(symbol: '\$').format(amount);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    return Consumer<AnalyticsViewModel>(
+      builder: (context, analyticsVM, child) {
+        final revenue = analyticsVM.getTotalRevenue();
+        final revenueChange = analyticsVM.getRevenueChange();
+        final totalOrders = analyticsVM.getTotalOrders();
+        final orderChange = analyticsVM.getOrderChange();
+        final averageOrderValue = totalOrders > 0 ? revenue / totalOrders : 0.0;
+
+        final topItems = analyticsVM.getTopMenuItems(limit: 1);
+        final bestSellingItemName = topItems.isNotEmpty ? topItems.first.menuItem : 'No Data';
+        final bestSellingItemCount = topItems.isNotEmpty ? topItems.first.salesCount : 0;
+
     return Padding(
       padding: const EdgeInsets.only(
         top: 32.0,
@@ -84,24 +116,24 @@ class AnalyticsSuite extends StatelessWidget {
               Expanded(
                 child: _buildMetricCard(
                   'Total Revenue',
-                  '\$124,500',
-                  '8.4% vs last month',
+                  _formatCurrency(revenue),
+                  '${revenueChange >= 0 ? '+' : ''}${revenueChange.toStringAsFixed(1)}% vs yesterday',
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: _buildMetricCard(
                   'Average Order Value',
-                  '\$85.20',
-                  '2.1% vs last month',
+                  _formatCurrency(averageOrderValue),
+                  '--', // No direct API field for AOV trend
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: _buildMetricCard(
                   'Total Orders',
-                  '1,462',
-                  '0.5% vs last month',
+                  '$totalOrders',
+                  '${orderChange >= 0 ? '+' : ''}${orderChange.toStringAsFixed(1)}% vs yesterday',
                 ),
               ),
               const SizedBox(width: 16),
@@ -139,17 +171,19 @@ class AnalyticsSuite extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Truffle Mushroom Risotto',
-                        style: TextStyle(
+                      Text(
+                        bestSellingItemName,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF1E231F),
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '324 orders this month',
+                        '$bestSellingItemCount orders today',
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 12,
@@ -281,9 +315,9 @@ class AnalyticsSuite extends StatelessWidget {
                                       fontSize: 12,
                                     ),
                                   ),
-                                  const Text(
-                                    '1,842',
-                                    style: TextStyle(
+                                  Text(
+                                    '$totalOrders',
+                                    style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -316,6 +350,8 @@ class AnalyticsSuite extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 
