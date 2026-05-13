@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:lacarte_dashboard/ui/dashboard_ft/view_models/menu_view_model.dart';
-// import 'package:lacarte_dashboard/data/service/api_client.dart';
+import 'package:lacarte_dashboard/data/service/api_client.dart';
 import 'package:intl/intl.dart';
 
 class MenuAtelier extends StatefulWidget {
@@ -45,6 +45,12 @@ class _MenuAtelierState extends State<MenuAtelier> {
   Widget build(BuildContext context) {
     return Consumer<MenuViewModel>(
       builder: (context, menuVM, child) {
+        if (menuVM.status == MenuStatus.loading && menuVM.menuItems.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF728A7C)),
+          );
+        }
+
         final allItems = menuVM.menuItems;
         final displayedItems = _selectedTab == 'All Items'
             ? allItems
@@ -206,11 +212,30 @@ class _MenuAtelierState extends State<MenuAtelier> {
                     // Dynamic items
                     ...displayedItems.map((item) {
                       return _buildItemCard(
+                        id: item.id,
                         title: item.name,
                         price: _formatCurrency(item.price),
                         description: item.description,
                         tag: _getCategoryName(item.category),
                         isAvailable: item.isAvailable,
+                        onToggleAvailability: () {
+                          // Note: In a real app we need access to other properties or the viewmodel method 
+                          // could take an id and a map of fields to update.
+                          // Here we create a new request with flipped availability.
+                          menuVM.updateMenuItem(
+                            item.id,
+                            MenuItemRequest(
+                              name: item.name,
+                              description: item.description,
+                              price: item.price,
+                              category: item.category,
+                              isAvailable: !item.isAvailable,
+                            ),
+                          );
+                        },
+                        onDelete: () {
+                          menuVM.deleteMenuItem(item.id);
+                        },
                       );
                     }),
 
@@ -337,11 +362,14 @@ class _MenuAtelierState extends State<MenuAtelier> {
   }
 
   Widget _buildItemCard({
+    required int id,
     required String title,
     required String price,
     required String description,
     required String tag,
     required bool isAvailable,
+    required VoidCallback onToggleAvailability,
+    required VoidCallback onDelete,
   }) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -449,18 +477,24 @@ class _MenuAtelierState extends State<MenuAtelier> {
               ),
               Row(
                 children: [
-                  Icon(
-                    isAvailable
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    size: 18,
-                    color: Colors.grey.shade400,
+                  GestureDetector(
+                    onTap: onToggleAvailability,
+                    child: Icon(
+                      isAvailable
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      size: 18,
+                      color: isAvailable ? Colors.grey.shade600 : Colors.grey.shade400,
+                    ),
                   ),
                   const SizedBox(width: 12),
-                  Icon(
-                    Icons.edit_outlined,
-                    size: 18,
-                    color: Colors.grey.shade400,
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: Colors.red.shade400,
+                    ),
                   ),
                 ],
               ),

@@ -27,6 +27,12 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
   Widget build(BuildContext context) {
     return Consumer<AnalyticsViewModel>(
       builder: (context, analyticsVM, child) {
+        if (analyticsVM.isLoading && !analyticsVM.isAllDataLoaded) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF728A7C)),
+          );
+        }
+
         final revenue = analyticsVM.getTotalRevenue();
         final revenueChange = analyticsVM.getRevenueChange();
         final totalOrders = analyticsVM.getTotalOrders();
@@ -36,6 +42,12 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
         final topItems = analyticsVM.getTopMenuItems(limit: 1);
         final bestSellingItemName = topItems.isNotEmpty ? topItems.first.menuItem : 'No Data';
         final bestSellingItemCount = topItems.isNotEmpty ? topItems.first.salesCount : 0;
+
+        final takeaway = analyticsVM.salesTrendData?.orderTypeDistribution.takeaway ?? 0;
+        final dineIn = analyticsVM.salesTrendData?.orderTypeDistribution.dineIn ?? 0;
+        final totalTypes = takeaway + dineIn;
+        final takeawayPct = totalTypes > 0 ? takeaway / totalTypes : 0.0;
+        final dineInPct = totalTypes > 0 ? dineIn / totalTypes : 0.0;
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -243,7 +255,9 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
                         Expanded(
                           child: CustomPaint(
                             size: const Size(double.infinity, double.infinity),
-                            painter: SimpleLineChartPainter(),
+                            painter: SimpleLineChartPainter(
+                              data: analyticsVM.salesTrendData?.revenue ?? [],
+                            ),
                           ),
                         ),
                       ],
@@ -265,7 +279,7 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Category Sales',
+                          'Order Type Distribution',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
@@ -285,31 +299,31 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
                                   color: Colors.grey.shade200,
                                 ),
                               ),
-                              SizedBox(
-                                width: 160,
-                                height: 160,
-                                child: CircularProgressIndicator(
-                                  value: 0.85,
-                                  strokeWidth: 20,
-                                  color: Colors.grey.shade300,
+                              if (totalTypes > 0)
+                                SizedBox(
+                                  width: 160,
+                                  height: 160,
+                                  child: CircularProgressIndicator(
+                                    value: takeawayPct + dineInPct,
+                                    strokeWidth: 20,
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 160,
-                                height: 160,
-                                child: CircularProgressIndicator(
-                                  value: 0.60,
-                                  strokeWidth: 20,
-                                  color: Color(
-                                    0xFF728A7C,
-                                  ), // Sage green for Mains
+                              if (totalTypes > 0)
+                                SizedBox(
+                                  width: 160,
+                                  height: 160,
+                                  child: CircularProgressIndicator(
+                                    value: dineInPct,
+                                    strokeWidth: 20,
+                                    color: const Color(0xFF728A7C),
+                                  ),
                                 ),
-                              ),
                               Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Total Items',
+                                    'Total Orders',
                                     style: TextStyle(
                                       color: Colors.grey.shade500,
                                       fontSize: 12,
@@ -329,18 +343,16 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
                         ),
                         const Spacer(),
                         _buildLegendItem(
-                          'Mains',
-                          '60%',
+                          'Dine-In',
+                          '${(dineInPct * 100).toStringAsFixed(0)}%',
                           const Color(0xFF728A7C),
                         ),
                         const SizedBox(height: 12),
                         _buildLegendItem(
-                          'Appetizers',
-                          '25%',
+                          'Takeaway',
+                          '${(takeawayPct * 100).toStringAsFixed(0)}%',
                           Colors.grey.shade300,
                         ),
-                        const SizedBox(height: 12),
-                        _buildLegendItem('Drinks', '15%', Colors.grey.shade200),
                       ],
                     ),
                   ),
@@ -435,8 +447,14 @@ class _AnalyticsSuiteState extends State<AnalyticsSuite> {
 
 // Custom Painter to draw the smooth bezier curve for the Revenue chart
 class SimpleLineChartPainter extends CustomPainter {
+  final List<double> data;
+
+  SimpleLineChartPainter({required this.data});
+
   @override
   void paint(Canvas canvas, Size size) {
+    if (data.isEmpty) return;
+
     final linePaint = Paint()
       ..color = const Color(0xFF728A7C)
       ..strokeWidth = 4
@@ -448,27 +466,24 @@ class SimpleLineChartPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final path = Path();
+    final maxVal = data.reduce((a, b) => a > b ? a : b);
+    final range = maxVal == 0 ? 1.0 : maxVal;
 
-    // Starting point
-    path.moveTo(0, size.height * 0.8);
+    final stepX = data.length > 1 ? size.width / (data.length - 1) : size.width;
 
-    // Creating a smooth curve to match the design
-    path.cubicTo(
-      size.width * 0.2,
-      size.height * 0.75,
-      size.width * 0.3,
-      size.height * 0.8,
-      size.width * 0.4,
-      size.height * 0.5,
-    );
-    path.cubicTo(
-      size.width * 0.5,
-      size.height * 0.2,
-      size.width * 0.7,
-      size.height * 0.3,
-      size.width,
-      size.height * 0.3,
-    );
+    // Use bezier curves for smooth lines
+    for (int i = 0; i < data.length; i++) {
+      final x = i * stepX;
+      final y = size.height - (data[i] / range) * size.height * 0.8;
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        final prevX = (i - 1) * stepX;
+        final prevY = size.height - (data[i - 1] / range) * size.height * 0.8;
+        final controlPointX = prevX + (x - prevX) / 2;
+        path.cubicTo(controlPointX, prevY, controlPointX, y, x, y);
+      }
+    }
 
     // Draw the fill
     final fillPath = Path.from(path)
@@ -487,29 +502,12 @@ class SimpleLineChartPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
-    // Point 1
-    canvas.drawCircle(
-      Offset(size.width * 0.4, size.height * 0.5),
-      6,
-      circlePaint,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.4, size.height * 0.5),
-      6,
-      strokePaint,
-    );
-
-    // Point 2 (Sunday - High point)
-    canvas.drawCircle(
-      Offset(size.width * 0.9, size.height * 0.3),
-      6,
-      circlePaint,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.9, size.height * 0.3),
-      6,
-      strokePaint,
-    );
+    for (int i = 0; i < data.length; i++) {
+      final x = i * stepX;
+      final y = size.height - (data[i] / range) * size.height * 0.8;
+      canvas.drawCircle(Offset(x, y), 6, circlePaint);
+      canvas.drawCircle(Offset(x, y), 6, strokePaint);
+    }
 
     // Draw horizontal grid lines
     final gridPaint = Paint()
@@ -522,5 +520,7 @@ class SimpleLineChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant SimpleLineChartPainter oldDelegate) {
+    return oldDelegate.data != data;
+  }
 }

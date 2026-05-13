@@ -56,6 +56,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Consumer2<AnalyticsViewModel, OrderViewModel>(
       builder: (context, analyticsVM, orderVM, child) {
+        if ((analyticsVM.isLoading && !analyticsVM.isAllDataLoaded) || 
+            (orderVM.status == OrderStatus.loading && orderVM.orders.isEmpty)) {
+          return const Center(
+            child: CircularProgressIndicator(color: Color(0xFF728A7C)),
+          );
+        }
+
         final revenue = analyticsVM.getTotalRevenue();
         final revenueChange = analyticsVM.getRevenueChange();
         final activeOrders = orderVM.orders
@@ -85,6 +92,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             )
             .take(3)
             .toList();
+
+        // Calculate Dining Capacity
+        final activeSessions = orderVM.orders
+            .where((o) => o.session != null && o.session!.isActive && o.session!.table != null)
+            .map((o) => o.session!.table!.id)
+            .toSet();
+        final int occupiedTablesCount = activeSessions.length;
+        const int totalTables = 56; // Assume 56 total tables based on design
+        final double occupancyRate = totalTables > 0 ? occupiedTablesCount / totalTables : 0.0;
 
         return Padding(
           padding: const EdgeInsets.only(
@@ -390,16 +406,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               width: 100,
                                               height: 100,
                                               child: CircularProgressIndicator(
-                                                value: 0.75,
+                                                value: occupancyRate,
                                                 strokeWidth: 8,
                                                 backgroundColor:
                                                     Colors.grey.shade200,
                                                 color: const Color(0xFF728A7C),
                                               ),
                                             ),
-                                            const Text(
-                                              '75%',
-                                              style: TextStyle(
+                                            Text(
+                                              '${(occupancyRate * 100).toInt()}%',
+                                              style: const TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -415,7 +431,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          '42 of 56 tables occupied. Expect wait times to increase.',
+                                          '$occupiedTablesCount of $totalTables tables occupied. Expect wait times to increase.',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             color: Colors.grey.shade500,
