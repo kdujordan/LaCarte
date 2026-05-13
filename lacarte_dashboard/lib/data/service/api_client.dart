@@ -60,8 +60,27 @@ abstract class ApiClient {
   @DELETE("/analytics/staff/{id}/reject_staff/")
   Future<void> rejectStaff(@Path("id") int id);
 
+  // ==================== Categories ====================
+  @GET("/categories/get_categories/")
+  Future<List<CategoryResponse>> getCategories();
+
+  @GET("/categories/{id}/")
+  Future<CategoryResponse> getCategoryById(@Path("id") int id);
+
+  @POST("/categories/create_category/")
+  Future<CategoryResponse> createCategory(@Body() CategoryRequest request);
+
+  @PUT("/categories/{id}/update_category/")
+  Future<CategoryResponse> updateCategory(
+    @Path("id") int id,
+    @Body() CategoryRequest request,
+  );
+
+  @DELETE("/categories/{id}/delete_category/")
+  Future<void> deleteCategory(@Path("id") int id);
+
   // ==================== Menu Items ====================
-  @GET("/menu-items/")
+  @GET("/menu-items/get_menu_items/")
   Future<List<MenuItemResponse>> getMenuItems();
 
   @GET("/menu-items/{id}/")
@@ -518,4 +537,38 @@ class StaffResponse {
       _$StaffResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$StaffResponseToJson(this);
+}
+
+@JsonSerializable()
+class CategoryResponse {
+  final int id;
+  final String name;
+  final String description;
+
+  CategoryResponse({
+    required this.id,
+    required this.name,
+    required this.description,
+  });
+
+  factory CategoryResponse.fromJson(Map<String, dynamic> json) =>
+      _$CategoryResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CategoryResponseToJson(this);
+}
+
+@JsonSerializable()
+class CategoryRequest {
+  final String name;
+  final String description;
+
+  CategoryRequest({
+    required this.name,
+    required this.description,
+  });
+
+  factory CategoryRequest.fromJson(Map<String, dynamic> json) =>
+      _$CategoryRequestFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CategoryRequestToJson(this);
 }

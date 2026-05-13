@@ -29,6 +29,7 @@ from core.views import (
     OrderItemViewSet,
     CategorizedMenuViewSet,
     PlaceOrderView,
+    CategoryViewSet,
 )
 from rest_framework.routers import DefaultRouter
 from analytics.views import (
@@ -63,6 +64,7 @@ router.register(
 router.register(r"receipts", ReceiptViewSet)
 router.register(r"order-items", OrderItemViewSet)
 router.register(r"category-menu", CategorizedMenuViewSet, basename="category-menu")
+router.register(r"categories", CategoryViewSet, basename="categories")
 
 analytics_router = DefaultRouter()
 analytics_router.register(r"staff", StaffManagementViewSet, basename="staff-managment")

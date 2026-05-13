@@ -11,10 +11,31 @@ class MenuViewModel extends ChangeNotifier {
   MenuStatus _status = MenuStatus.idle;
   String? _errorMessage;
   List<MenuItemResponse> _menuItems = [];
+  List<CategoryResponse> _categories = [];
 
   MenuStatus get status => _status;
   String? get errorMessage => _errorMessage;
   List<MenuItemResponse> get menuItems => _menuItems;
+  List<CategoryResponse> get categories => _categories;
+
+  Future<void> fetchAllData() async {
+    _setStatus(MenuStatus.loading);
+    try {
+      final itemsFuture = _menuRepository.getMenuItems();
+      final categoriesFuture = _menuRepository.getCategories();
+
+      final results = await Future.wait([itemsFuture, categoriesFuture]);
+
+      _menuItems = results[0] as List<MenuItemResponse>;
+      _categories = results[1] as List<CategoryResponse>;
+
+      _setStatus(MenuStatus.success);
+    } on DioException catch (e) {
+      _setError('Failed to fetch data: ${e.message}');
+    } catch (e) {
+      _setError('An error occurred: $e');
+    }
+  }
 
   Future<void> fetchMenuItems() async {
     _setStatus(MenuStatus.loading);
@@ -77,6 +98,62 @@ class MenuViewModel extends ChangeNotifier {
       _setStatus(MenuStatus.success);
     } on DioException catch (e) {
       _setError('Failed to delete menu item: ${e.message}');
+    } catch (e) {
+      _setError('An error occurred: $e');
+    }
+  }
+
+  // ==================== Categories ====================
+
+  Future<void> fetchCategories() async {
+    _setStatus(MenuStatus.loading);
+    try {
+      _categories = await _menuRepository.getCategories();
+      _setStatus(MenuStatus.success);
+    } on DioException catch (e) {
+      _setError('Failed to fetch categories: ${e.message}');
+    } catch (e) {
+      _setError('An error occurred: $e');
+    }
+  }
+
+  Future<void> createCategory(CategoryRequest request) async {
+    _setStatus(MenuStatus.loading);
+    try {
+      final newCategory = await _menuRepository.createCategory(request);
+      _categories.add(newCategory);
+      _setStatus(MenuStatus.success);
+    } on DioException catch (e) {
+      _setError('Failed to create category: ${e.message}');
+    } catch (e) {
+      _setError('An error occurred: $e');
+    }
+  }
+
+  Future<void> updateCategory(int id, CategoryRequest request) async {
+    _setStatus(MenuStatus.loading);
+    try {
+      final updatedCategory = await _menuRepository.updateCategory(id, request);
+      final index = _categories.indexWhere((item) => item.id == id);
+      if (index != -1) {
+        _categories[index] = updatedCategory;
+      }
+      _setStatus(MenuStatus.success);
+    } on DioException catch (e) {
+      _setError('Failed to update category: ${e.message}');
+    } catch (e) {
+      _setError('An error occurred: $e');
+    }
+  }
+
+  Future<void> deleteCategory(int id) async {
+    _setStatus(MenuStatus.loading);
+    try {
+      await _menuRepository.deleteCategory(id);
+      _categories.removeWhere((item) => item.id == id);
+      _setStatus(MenuStatus.success);
+    } on DioException catch (e) {
+      _setError('Failed to delete category: ${e.message}');
     } catch (e) {
       _setError('An error occurred: $e');
     }

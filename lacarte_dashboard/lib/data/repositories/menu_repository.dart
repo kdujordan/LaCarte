@@ -39,4 +39,29 @@ class MenuRepository {
   Future<void> deleteMenuItem(int id) async {
     await _dioClient.apiClient.deleteMenuItem(id);
   }
+
+  // ==================== Categories ====================
+
+  Future<List<CategoryResponse>> getCategories() async {
+    return await _dioClient.apiClient.getCategories();
+  }
+
+  Future<CategoryResponse> getCategoryById(int id) async {
+    return await _dioClient.apiClient.getCategoryById(id);
+  }
+
+  Future<CategoryResponse> createCategory(CategoryRequest request) async {
+    return await _dioClient.apiClient.createCategory(request);
+  }
+
+  Future<CategoryResponse> updateCategory(
+    int id,
+    CategoryRequest request,
+  ) async {
+    return await _dioClient.apiClient.updateCategory(id, request);
+  }
+
+  Future<void> deleteCategory(int id) async {
+    await _dioClient.apiClient.deleteCategory(id);
+  }
 }

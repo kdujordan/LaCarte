@@ -185,8 +185,11 @@ class MenuItemViewSet(viewsets.ModelViewSet):
         Custom action for the 'Update Menu Item' button in Dashboard
         """
         menu_item = self.get_object()
-        menu_item = self.update(request, pk)
-        return Response(MenuItemSerializer(menu_item).data)
+        serializer = self.get_serializer(menu_item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["delete"])
     def delete_menu_item(self, request, pk=None):
@@ -370,3 +373,38 @@ class CategorizedMenuViewSet(viewsets.ReadOnlyModelViewSet):
         categories = Category.objects.filter(is_active=True).order_by("display_order")
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    """
+    API Viewset for Categories. Staff manages this in Dashboard.
+    """
+    queryset = Category.objects.all().order_by("display_order", "name")
+    serializer_class = CategorySerializer
+
+    @action(detail=False, methods=["get"])
+    def get_categories(self, request):
+        categories = self.get_queryset()
+        return Response(CategorySerializer(categories, many=True).data)
+
+    @action(detail=False, methods=["post"])
+    def create_category(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["put"])
+    def update_category(self, request, pk=None):
+        category = self.get_object()
+        serializer = self.get_serializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=["delete"])
+    def delete_category(self, request, pk=None):
+        category = self.get_object()
+        category.delete()
+        return Response({"message": f"Category {category.id} deleted successfully"})
